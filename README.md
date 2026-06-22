@@ -15,15 +15,15 @@ A simple Android application built with Kotlin that allows users to browse, sear
 
 ### Home Screen
 
-![Home Screen](screenshots/home.png)
+<img width="540" height="1200" alt="WhatsApp Image 2026-06-22 at 15 13 08 (1)" src="https://github.com/user-attachments/assets/70cd948a-88f1-4598-8581-406dae52fe8e" />
 
 ### Album Details
 
-![Album Details](screenshots/details.png)
+<img width="1080" height="2400" alt="WhatsApp Image 2026-06-22 at 15 13 08" src="https://github.com/user-attachments/assets/1a122f82-b246-41ee-b255-df7380ac52a3" />
 
 ### Cart Screen
 
-![Cart Screen](screenshots/cart.png)
+<img width="540" height="1200" alt="WhatsApp Image 2026-06-22 at 15 14 44" src="https://github.com/user-attachments/assets/7cfff61b-746e-458a-8f15-3aceccf56b86" />
 
 ## Built With
 
@@ -53,7 +53,7 @@ com.example.musicstore
 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/music-store-app.git
+git clone [https://github.com/yourusername/music-store-app.git](https://github.com/Dominic-the-coder/Music-Album-Vinyl-Hub#js-repo-pjax-container)
 ```
 
 2. Open the project in Android Studio
@@ -85,9 +85,9 @@ git clone https://github.com/yourusername/music-store-app.git
 
 ## Author
 
-Your Name
+Dominic Fam
 
-GitHub: https://github.com/yourusername
+GitHub: [https://github.com/yourusername](https://github.com/Dominic-the-coder)
 
 ## License
 

@@ -87,7 +87,7 @@ git clone (https://github.com/Dominic-the-coder/Music-Album-Vinyl-Hub#js-repo-pj
 
 Dominic Fam
 
-GitHub: [https://github.com/yourusername](https://github.com/Dominic-the-coder)
+GitHub: [[https://github.com/yourusername](https://github.com/Dominic-the-coder)]
 
 ## License
 

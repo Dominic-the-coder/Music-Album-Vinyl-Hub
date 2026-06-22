@@ -53,7 +53,7 @@ com.example.musicstore
 1. Clone the repository
 
 ```bash
-git clone [https://github.com/yourusername/music-store-app.git](https://github.com/Dominic-the-coder/Music-Album-Vinyl-Hub#js-repo-pjax-container)
+git clone (https://github.com/Dominic-the-coder/Music-Album-Vinyl-Hub#js-repo-pjax-container)
 ```
 
 2. Open the project in Android Studio

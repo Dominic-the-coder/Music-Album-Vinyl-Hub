@@ -15,7 +15,7 @@ A simple Android application built with Kotlin that allows users to browse, sear
 
 ### Home Screen
 
-<img width="1080" height="2400" alt="WhatsApp Image 2026-06-22 at 15 13 08" src="https://github.com/user-attachments/assets/1a122f82-b246-41ee-b255-df7380ac52a3" />
+<img width="540" height="1200" alt="WhatsApp Image 2026-06-22 at 15 13 08" src="https://github.com/user-attachments/assets/1a122f82-b246-41ee-b255-df7380ac52a3" />
 
 ### Album Details
 

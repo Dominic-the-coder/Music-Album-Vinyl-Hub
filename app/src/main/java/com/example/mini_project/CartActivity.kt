@@ -1,0 +1,89 @@
+package com.example.mini_project
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.ImageButton
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.mini_project.adapters.CartAdapter
+import com.example.mini_project.cart.CartManager
+
+class CartActivity : AppCompatActivity() {
+
+    private lateinit var adapter: CartAdapter
+    private lateinit var tvTotal: TextView
+    private lateinit var btnConfirm: AppCompatButton
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_cart)
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
+            insets
+        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.rvCart)
+        tvTotal = findViewById(R.id.tvTotal)
+        btnConfirm = findViewById(R.id.btnConfirm)
+        val backButton = findViewById<ImageButton>(R.id.backButton)
+
+        adapter = CartAdapter(
+            CartManager.getCartItems().toMutableList()
+        ) { item ->
+            CartManager.removeFromCart(item.album)
+            refreshCart()
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+
+        btnConfirm.setOnClickListener {
+
+            if (CartManager.getCartItems().isEmpty()) return@setOnClickListener
+
+            CartManager.clear()
+
+            startActivity(
+                Intent(this, AlbumListActivity::class.java)
+            )
+
+            finish()
+        }
+
+        backButton.setOnClickListener {
+            finish()
+        }
+
+        refreshCart()
+    }
+
+    private fun refreshCart() {
+
+        val items = CartManager.getCartItems().toMutableList()
+
+        adapter.updateList(items)
+
+        tvTotal.text = String.format(
+            "Total: RM %.2f",
+            CartManager.getTotal()
+        )
+
+        btnConfirm.isEnabled = items.isNotEmpty()
+
+        btnConfirm.alpha =
+            if (items.isEmpty()) 0.5f
+            else 1f
+    }
+}

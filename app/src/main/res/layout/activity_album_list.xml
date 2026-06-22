@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingEnd="10dp">
+
+            <EditText
+                android:id="@+id/editTextText2"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/rounded_edittext"
+                android:drawableStart="@android:drawable/ic_menu_search"
+                android:drawableTint="@color/black"
+                android:hint="Search..."
+                android:textColorHint="@color/black"
+                tools:layout_editor_absoluteX="39dp"
+                tools:layout_editor_absoluteY="27dp" />
+
+            <ImageButton
+                android:id="@+id/imageButton3"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_margin="10dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Cart"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/cart2" />
+
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            android:background="@color/black">
+
+            <LinearLayout
+                android:id="@+id/categoryContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnAll"
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:text="All"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnWeeknd"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:text="The Weeknd"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnTravis"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:text="Travis Scott"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnDrake"
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:text="Drake"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnUzi"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:text="Lil Uzi Vert"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnJustin"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:text="Justin Bieber"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/btnGloria"
+                    android:layout_width="120dp"
+                    android:layout_height="60dp"
+                    android:text="Gloria Gaynor"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingStart="10dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="90dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

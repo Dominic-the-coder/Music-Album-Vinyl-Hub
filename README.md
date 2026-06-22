@@ -19,11 +19,11 @@ A simple Android application built with Kotlin that allows users to browse, sear
 
 ### Album Details
 
-<img width="540" height="1200" alt="WhatsApp Image 2026-06-22 at 15 13 08 (1)" src="https://github.com/user-attachments/assets/70cd948a-88f1-4598-8581-406dae52fe8e" />
+<img width="270" height="600" alt="WhatsApp Image 2026-06-22 at 15 13 08 (1)" src="https://github.com/user-attachments/assets/70cd948a-88f1-4598-8581-406dae52fe8e" />
 
 ### Cart Screen
 
-<img width="540" height="1200" alt="WhatsApp Image 2026-06-22 at 15 14 44" src="https://github.com/user-attachments/assets/7cfff61b-746e-458a-8f15-3aceccf56b86" />
+<img width="270" height="600" alt="WhatsApp Image 2026-06-22 at 15 14 44" src="https://github.com/user-attachments/assets/7cfff61b-746e-458a-8f15-3aceccf56b86" />
 
 ## Built With
 

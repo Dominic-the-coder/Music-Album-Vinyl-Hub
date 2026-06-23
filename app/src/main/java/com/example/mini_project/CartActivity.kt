@@ -32,12 +32,14 @@ class CartActivity : AppCompatActivity() {
             insets
         }
 
+        // Connect RecyclerView and UI elements
         val recyclerView = findViewById<RecyclerView>(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
         btnConfirm = findViewById(R.id.btnConfirm)
         emptyLayout = findViewById(R.id.layoutEmptyCart)
         val backButton = findViewById<ImageButton>(R.id.backButton)
 
+        // Initialize adapter with cart data and define item actions
         adapter = CartAdapter(
             CartManager.getCartItems().toMutableList(),
             onDelete = { item ->
@@ -49,6 +51,7 @@ class CartActivity : AppCompatActivity() {
             }
         )
 
+        // Setup RecyclerView layout
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
@@ -67,10 +70,13 @@ class CartActivity : AppCompatActivity() {
 
     private fun refreshCart() {
 
+        // Get latest cart data
         val items = CartManager.getCartItems().toMutableList()
 
+        // Update RecyclerView with current cart items
         adapter.updateList(items)
 
+        // Calculate and display total cart price
         tvTotal.text = String.format(
             "Total: RM %.2f",
             CartManager.getTotal()

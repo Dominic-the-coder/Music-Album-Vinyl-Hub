@@ -16,6 +16,7 @@ class CartAdapter(
     private val onChange: () -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
+    // ViewHolder stores references to UI components for better RecyclerView performance
     class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val image: ImageView = itemView.findViewById(R.id.imageAlbum)
@@ -29,12 +30,14 @@ class CartAdapter(
         val delete: ImageView = itemView.findViewById(R.id.btnDelete)
     }
 
+    // Inflates item_cart.xml layout for RecyclerView item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_cart, parent, false)
         return CartViewHolder(view)
     }
 
+    // Binds cart data to UI and handles button interactions
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
 
         val item = cartList[position]
@@ -86,8 +89,10 @@ class CartAdapter(
         }
     }
 
+    // Returns number of items in cart
     override fun getItemCount(): Int = cartList.size
 
+    // Updates cart list and refreshes RecyclerView
     fun updateList(newList: MutableList<Cart>) {
         cartList = newList
         notifyDataSetChanged()

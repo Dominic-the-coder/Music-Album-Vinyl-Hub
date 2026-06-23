@@ -12,12 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mini_project.adapters.CartAdapter
 import com.example.mini_project.cart.CartManager
+import android.view.View
+import android.widget.LinearLayout
 
 class CartActivity : AppCompatActivity() {
 
     private lateinit var adapter: CartAdapter
     private lateinit var tvTotal: TextView
     private lateinit var btnConfirm: AppCompatButton
+    private lateinit var emptyLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +40,7 @@ class CartActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
         btnConfirm = findViewById(R.id.btnConfirm)
+        emptyLayout = findViewById(R.id.layoutEmptyCart)
         val backButton = findViewById<ImageButton>(R.id.backButton)
 
         adapter = CartAdapter(
@@ -79,6 +83,16 @@ class CartActivity : AppCompatActivity() {
             "Total: RM %.2f",
             CartManager.getTotal()
         )
+
+        if (items.isEmpty()) {
+            emptyLayout.visibility = View.VISIBLE
+            tvTotal.visibility = View.GONE
+            btnConfirm.visibility = View.GONE
+        } else {
+            emptyLayout.visibility = View.GONE
+            tvTotal.visibility = View.VISIBLE
+            btnConfirm.visibility = View.VISIBLE
+        }
 
         btnConfirm.isEnabled = items.isNotEmpty()
 

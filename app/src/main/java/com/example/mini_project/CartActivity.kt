@@ -93,11 +93,5 @@ class CartActivity : AppCompatActivity() {
             tvTotal.visibility = View.VISIBLE
             btnConfirm.visibility = View.VISIBLE
         }
-
-        btnConfirm.isEnabled = items.isNotEmpty()
-
-        btnConfirm.alpha =
-            if (items.isEmpty()) 0.5f
-            else 1f
     }
 }

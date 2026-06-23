@@ -16,6 +16,7 @@ class AlbumAdapter(
     private var albumList: List<Album>
 ) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
+    // ViewHolder stores references to UI components for better RecyclerView performance
     class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val image: ImageView = itemView.findViewById(R.id.imageAlbum)
         val title: TextView = itemView.findViewById(R.id.tvAlbumTitle)
@@ -24,12 +25,14 @@ class AlbumAdapter(
         val btnAdd: AppCompatButton = itemView.findViewById(R.id.btnAdd)
     }
 
+    // Inflates item_album.xml and creates a ViewHolder for each RecyclerView item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_album, parent, false)
         return AlbumViewHolder(view)
     }
 
+    // Binds album data to the corresponding UI components in the ViewHolder
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
         val album = albumList[position]
 
@@ -49,8 +52,10 @@ class AlbumAdapter(
         }
     }
 
+    // Returns the total number of albums for RecyclerView to display
     override fun getItemCount(): Int = albumList.size
 
+    // Updates the album list and refreshes the RecyclerView display
     fun updateList(newList: List<Album>) {
         albumList = newList
         notifyDataSetChanged()

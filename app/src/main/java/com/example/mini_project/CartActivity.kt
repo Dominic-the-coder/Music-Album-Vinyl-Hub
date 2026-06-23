@@ -43,10 +43,13 @@ class CartActivity : AppCompatActivity() {
         emptyLayout = findViewById(R.id.layoutEmptyCart)
         val backButton = findViewById<ImageButton>(R.id.backButton)
 
+        // Initialize CartAdapter with current cart items and handle item removal
         adapter = CartAdapter(
             CartManager.getCartItems().toMutableList()
         ) { item ->
+            // Remove selected album from cart
             CartManager.removeFromCart(item.album)
+            // Refresh UI after data change
             refreshCart()
         }
 
@@ -55,14 +58,18 @@ class CartActivity : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
 
+            // Prevent checkout when cart is empty
             if (CartManager.getCartItems().isEmpty()) return@setOnClickListener
 
+            // Complete purchase by clearing cart
             CartManager.clear()
 
+            // Navigate back to album list screen
             startActivity(
                 Intent(this, AlbumListActivity::class.java)
             )
 
+            // Close current activity
             finish()
         }
 
@@ -75,20 +82,25 @@ class CartActivity : AppCompatActivity() {
 
     private fun refreshCart() {
 
+        // Get latest cart data
         val items = CartManager.getCartItems().toMutableList()
 
+        // Update RecyclerView with current cart items
         adapter.updateList(items)
 
+        // Calculate and display total cart price
         tvTotal.text = String.format(
             "Total: RM %.2f",
             CartManager.getTotal()
         )
 
         if (items.isEmpty()) {
+            // Show empty cart message and hide checkout section
             emptyLayout.visibility = View.VISIBLE
             tvTotal.visibility = View.GONE
             btnConfirm.visibility = View.GONE
         } else {
+            // Show cart summary and checkout button
             emptyLayout.visibility = View.GONE
             tvTotal.visibility = View.VISIBLE
             btnConfirm.visibility = View.VISIBLE

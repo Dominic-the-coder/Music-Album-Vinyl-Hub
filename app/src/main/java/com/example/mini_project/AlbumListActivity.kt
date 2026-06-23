@@ -24,6 +24,7 @@ class AlbumListActivity : AppCompatActivity() {
 
     private lateinit var albumService: AlbumService
 
+    // Updates chip selection UI by highlighting the active filter
     private fun selectChip(selected: Chip, chips: List<Chip>) {
         chips.forEach {
             it.setChipBackgroundColorResource(R.color.dark_gray)
@@ -69,6 +70,7 @@ class AlbumListActivity : AppCompatActivity() {
 
         adapter = AlbumAdapter(fullList)
 
+        // Initializes album management service to handle filtering and list updates
         albumService = AlbumService(fullList,adapter)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -83,17 +85,22 @@ class AlbumListActivity : AppCompatActivity() {
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+            // Executes whenever the search text changes
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Removes extra spaces and converts text to lowercase for case-insensitive searching
                 val q = s.toString().trim().lowercase()
 
+                // Filters albums based on user search input within the currently selected category
                 val filtered = albumService.retrieveCurrentSelectedAlbums().filter {
                     it.title.lowercase().contains(q) ||
                             it.artist.lowercase().contains(q)
                 }
 
+                // Refreshes RecyclerView with the filtered search results
                 adapter.updateList(filtered)
             }
 
+            // Refreshes RecyclerView with the filtered search results
             override fun afterTextChanged(s: Editable?) {}
         })
 

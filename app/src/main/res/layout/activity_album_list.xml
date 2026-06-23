@@ -38,6 +38,7 @@
                 android:drawableTint="@color/black"
                 android:hint="Search..."
                 android:textColorHint="@color/black"
+                android:textColor="@color/black"
                 tools:layout_editor_absoluteX="39dp"
                 tools:layout_editor_absoluteY="27dp" />
 

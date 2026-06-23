@@ -50,7 +50,7 @@ class CartAdapter(
 
         holder.btnPlus.setOnClickListener {
             val pos = holder.bindingAdapterPosition
-            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (pos == RecyclerView.NO_POSITION || pos >= cartList.size) return@setOnClickListener
 
             cartList[pos].quantity++
             notifyItemChanged(pos)
@@ -59,37 +59,30 @@ class CartAdapter(
 
         holder.btnMinus.setOnClickListener {
             val pos = holder.bindingAdapterPosition
-            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (pos == RecyclerView.NO_POSITION || pos >= cartList.size) return@setOnClickListener
 
-            if (cartList[pos].quantity > 1) {
-                cartList[pos].quantity--
+            val itemNow = cartList[pos]
+
+            if (itemNow.quantity > 1) {
+                itemNow.quantity--
                 notifyItemChanged(pos)
-            } else {
-                val removedItem = cartList[pos]
-                onDelete(removedItem)
-                cartList.removeAt(pos)
-                notifyItemRemoved(pos)
             }
-
-            onChange()
         }
 
         holder.delete.setOnClickListener {
             val pos = holder.bindingAdapterPosition
-            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (pos == RecyclerView.NO_POSITION || pos >= cartList.size) return@setOnClickListener
 
-            val removedItem = cartList[pos]
-            onDelete(removedItem)
-            cartList.removeAt(pos)
-            notifyItemRemoved(pos)
+            val itemNow = cartList[pos]
+
+            onDelete(itemNow)
+            onChange()
 
             Toast.makeText(
                 holder.itemView.context,
-                "Remove from cart",
+                "Removed from cart",
                 Toast.LENGTH_SHORT
             ).show()
-
-            onChange()
         }
     }
 

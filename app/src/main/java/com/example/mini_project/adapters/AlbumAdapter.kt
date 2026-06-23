@@ -16,11 +16,6 @@ class AlbumAdapter(
     private var albumList: List<Album>
 ) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
-    fun updateList(newList: List<Album>) {
-        albumList = newList
-        notifyDataSetChanged()
-    }
-
     class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val image: ImageView = itemView.findViewById(R.id.imageAlbum)
         val title: TextView = itemView.findViewById(R.id.tvAlbumTitle)
@@ -55,4 +50,9 @@ class AlbumAdapter(
     }
 
     override fun getItemCount(): Int = albumList.size
+
+    fun updateList(newList: List<Album>) {
+        albumList = newList
+        notifyDataSetChanged()
+    }
 }

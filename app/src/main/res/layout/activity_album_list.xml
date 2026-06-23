@@ -49,7 +49,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="Cart"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/cart2" />
+                app:srcCompat="@drawable/cart" />
 
         </LinearLayout>
 

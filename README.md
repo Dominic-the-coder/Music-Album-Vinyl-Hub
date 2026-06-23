@@ -17,7 +17,7 @@ A simple Android application built with Kotlin that allows users to browse, sear
 
 <img width="270" height="600" alt="WhatsApp Image 2026-06-22 at 15 13 08" src="https://github.com/user-attachments/assets/1a122f82-b246-41ee-b255-df7380ac52a3" />
 
-### Album Details
+### Album Screen
 
 <img width="270" height="600" alt="WhatsApp Image 2026-06-22 at 15 13 08 (1)" src="https://github.com/user-attachments/assets/70cd948a-88f1-4598-8581-406dae52fe8e" />
 

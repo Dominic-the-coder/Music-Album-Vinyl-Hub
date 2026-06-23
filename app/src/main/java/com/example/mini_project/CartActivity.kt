@@ -58,9 +58,6 @@ class CartActivity : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
 
-            // Prevent checkout when cart is empty
-            if (CartManager.getCartItems().isEmpty()) return@setOnClickListener
-
             // Complete purchase by clearing cart
             CartManager.clear()
 

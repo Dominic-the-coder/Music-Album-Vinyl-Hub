@@ -37,283 +37,354 @@ class EditProfileActivity : AppCompatActivity() {
 
     private val PICK_IMAGE = 100
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_edit_profile)
 
-        imgProfile = findViewById(R.id.imgProfile)
-        btnChangePhoto = findViewById(R.id.btnChangePhoto)
+        imgProfile =
+            findViewById(R.id.imgProfile)
 
-        edtName = findViewById(R.id.edtName)
-        edtEmail = findViewById(R.id.edtEmail)
-        btnSave = findViewById(R.id.btnSave)
+        btnChangePhoto =
+            findViewById(R.id.btnChangePhoto)
 
-        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        edtName =
+            findViewById(R.id.edtName)
+
+        edtEmail =
+            findViewById(R.id.edtEmail)
+
+        btnSave =
+            findViewById(R.id.btnSave)
+
+        val btnBack =
+            findViewById<ImageView>(R.id.btnBack)
+
+
+        // ========================================================
+        // BACK
+        // ========================================================
 
         btnBack.setOnClickListener {
             finish()
         }
 
+
+        // ========================================================
+        // LOAD USER
+        // ========================================================
+
         loadUser()
+
+
+        // ========================================================
+        // CHANGE PHOTO
+        // ========================================================
 
         btnChangePhoto.setOnClickListener {
             openGallery()
         }
+
+
+        // ========================================================
+        // SAVE PROFILE
+        // ========================================================
 
         btnSave.setOnClickListener {
             updateProfile()
         }
     }
 
-    // =========================
+
+    // ============================================================
     // LOAD USER
-    // =========================
+    // ============================================================
 
     private fun loadUser() {
 
-        val userId = Auth.getUserId(this)
+        val userId =
+            Auth.getUserId(this)
 
         if (userId == -1) {
 
-            Toast.makeText(
-                this,
-                "User not logged in",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in again."
+            )
 
             return
         }
 
-        RetrofitInstance.getApi(this)
+
+        RetrofitInstance
+            .getApi(this)
             .getUserById(userId)
-            .enqueue(object : Callback<UserDTO> {
+            .enqueue(
+                object : Callback<UserDTO> {
 
-                override fun onResponse(
-                    call: Call<UserDTO>,
-                    response: Response<UserDTO>
-                ) {
+                    override fun onResponse(
+                        call: Call<UserDTO>,
+                        response: Response<UserDTO>
+                    ) {
 
-                    if (response.isSuccessful) {
+                        if (response.isSuccessful) {
 
-                        val user = response.body()
+                            val user =
+                                response.body()
 
-                        if (user != null) {
+                            if (user != null) {
 
-                            edtName.setText(user.name)
-                            edtEmail.setText(user.email)
+                                edtName.setText(
+                                    user.name
+                                )
 
-                            // Load saved profile image
-                            if (user.imageId != null) {
-                                loadProfileImage(user.imageId)
+                                edtEmail.setText(
+                                    user.email
+                                )
+
+
+                                // Load saved profile image
+                                if (user.imageId != null) {
+
+                                    loadProfileImage(
+                                        user.imageId
+                                    )
+                                }
                             }
+
+                        } else {
+
+                            showToast(
+                                "Unable to load your profile."
+                            )
                         }
+                    }
 
-                    } else {
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Failed to load profile: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    override fun onFailure(
+                        call: Call<UserDTO>,
+                        t: Throwable
+                    ) {
+
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<UserDTO>,
-                    t: Throwable
-                ) {
-
-                    Toast.makeText(
-                        this@EditProfileActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
-    // LOAD PROFILE IMAGE
-    // =========================
 
-    private fun loadProfileImage(imageId: Int) {
+    // ============================================================
+    // LOAD PROFILE IMAGE
+    // ============================================================
+
+    private fun loadProfileImage(
+        imageId: Int
+    ) {
 
         RetrofitInstance
             .getApi(this)
             .getImage(imageId)
-            .enqueue(object : Callback<ResponseBody> {
+            .enqueue(
+                object : Callback<ResponseBody> {
 
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
+                    override fun onResponse(
+                        call: Call<ResponseBody>,
+                        response: Response<ResponseBody>
+                    ) {
 
-                    if (response.isSuccessful) {
+                        if (response.isSuccessful) {
 
-                        val body = response.body()
+                            val body =
+                                response.body()
 
-                        if (body != null) {
+                            if (body != null) {
 
-                            try {
+                                try {
 
-                                val bytes = body.bytes()
+                                    val bytes =
+                                        body.bytes()
 
-                                val bitmap = BitmapFactory.decodeByteArray(
-                                    bytes,
-                                    0,
-                                    bytes.size
-                                )
+                                    val bitmap =
+                                        BitmapFactory.decodeByteArray(
+                                            bytes,
+                                            0,
+                                            bytes.size
+                                        )
 
-                                if (bitmap != null) {
+                                    if (bitmap != null) {
 
-                                    imgProfile.setImageBitmap(bitmap)
+                                        imgProfile.setImageBitmap(
+                                            bitmap
+                                        )
 
-                                } else {
+                                    } else {
 
-                                    Toast.makeText(
-                                        this@EditProfileActivity,
-                                        "Could not decode image",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                        showToast(
+                                            "Unable to display profile photo."
+                                        )
+                                    }
+
+                                } catch (e: Exception) {
+
+                                    showToast(
+                                        "Unable to display profile photo."
+                                    )
                                 }
-
-                            } catch (e: Exception) {
-
-                                Toast.makeText(
-                                    this@EditProfileActivity,
-                                    "Image error: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
                             }
+
+                        } else {
+
+                            showToast(
+                                "Unable to load profile photo."
+                            )
                         }
+                    }
 
-                    } else {
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Image failed: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    override fun onFailure(
+                        call: Call<ResponseBody>,
+                        t: Throwable
+                    ) {
+
+                        showToast(
+                            "Unable to load profile photo."
+                        )
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<ResponseBody>,
-                    t: Throwable
-                ) {
-
-                    Toast.makeText(
-                        this@EditProfileActivity,
-                        "Image error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // UPDATE PROFILE
-    // =========================
+    // ============================================================
 
     private fun updateProfile() {
 
-        val name = edtName.text.toString().trim()
-        val email = edtEmail.text.toString().trim()
+        val name =
+            edtName.text
+                .toString()
+                .trim()
+
+        val email =
+            edtEmail.text
+                .toString()
+                .trim()
+
+
+        // ========================================================
+        // VALIDATION
+        // ========================================================
 
         if (name.isEmpty()) {
 
-            edtName.error = "Enter your name"
+            edtName.error =
+                "Enter your name"
+
+            edtName.requestFocus()
+
             return
         }
+
 
         if (email.isEmpty()) {
 
-            edtEmail.error = "Enter your email"
+            edtEmail.error =
+                "Enter your email"
+
+            edtEmail.requestFocus()
+
             return
         }
 
-        val userId = Auth.getUserId(this)
+
+        val userId =
+            Auth.getUserId(this)
 
         if (userId == -1) {
 
-            Toast.makeText(
-                this,
-                "User not logged in",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in again."
+            )
 
             return
         }
 
-        val request = UserDTO(
-            id = userId,
-            name = name,
-            email = email
-        )
+
+        val request =
+            UserDTO(
+                id = userId,
+                name = name,
+                email = email
+            )
+
 
         btnSave.isEnabled = false
 
-        RetrofitInstance.getApi(this)
+
+        RetrofitInstance
+            .getApi(this)
             .updateUser(
                 userId,
                 request
             )
-            .enqueue(object : Callback<UserDTO> {
+            .enqueue(
+                object : Callback<UserDTO> {
 
-                override fun onResponse(
-                    call: Call<UserDTO>,
-                    response: Response<UserDTO>
-                ) {
+                    override fun onResponse(
+                        call: Call<UserDTO>,
+                        response: Response<UserDTO>
+                    ) {
 
-                    btnSave.isEnabled = true
+                        btnSave.isEnabled = true
 
-                    if (response.isSuccessful) {
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Profile updated",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (response.isSuccessful) {
 
-                        finish()
+                            showToast(
+                                "Profile updated successfully."
+                            )
 
-                    } else {
+                            finish()
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Failed to update profile: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        } else {
+
+                            showToast(
+                                "Unable to update your profile."
+                            )
+                        }
+                    }
+
+
+                    override fun onFailure(
+                        call: Call<UserDTO>,
+                        t: Throwable
+                    ) {
+
+                        btnSave.isEnabled = true
+
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<UserDTO>,
-                    t: Throwable
-                ) {
-
-                    btnSave.isEnabled = true
-
-                    Toast.makeText(
-                        this@EditProfileActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // OPEN GALLERY
-    // =========================
+    // ============================================================
 
     private fun openGallery() {
 
-        val intent = Intent(
-            Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        )
+        val intent =
+            Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            )
 
         startActivityForResult(
             intent,
@@ -321,9 +392,10 @@ class EditProfileActivity : AppCompatActivity() {
         )
     }
 
-    // =========================
+
+    // ============================================================
     // IMAGE SELECTED
-    // =========================
+    // ============================================================
 
     @Deprecated("Deprecated in Android API")
     override fun onActivityResult(
@@ -338,17 +410,21 @@ class EditProfileActivity : AppCompatActivity() {
             data
         )
 
+
         if (
             requestCode == PICK_IMAGE &&
             resultCode == Activity.RESULT_OK
         ) {
 
-            selectedImageUri = data?.data
+            selectedImageUri =
+                data?.data
+
 
             selectedImageUri?.let { uri ->
 
                 // Show selected image immediately
                 imgProfile.setImageURI(uri)
+
 
                 // Upload image
                 uploadImage(uri)
@@ -356,184 +432,205 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    // =========================
+
+    // ============================================================
     // UPLOAD IMAGE
-    // =========================
+    // ============================================================
 
-    private fun uploadImage(uri: Uri) {
+    private fun uploadImage(
+        uri: Uri
+    ) {
 
-        val userId = Auth.getUserId(this)
+        val userId =
+            Auth.getUserId(this)
+
 
         if (userId == -1) {
 
-            Toast.makeText(
-                this,
-                "User not logged in",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in again."
+            )
 
             return
         }
 
+
         try {
 
-            val file = createTempFileFromUri(uri)
+            val file =
+                createTempFileFromUri(uri)
+
 
             val mimeType =
                 contentResolver.getType(uri)
                     ?: "image/jpeg"
 
-            val requestFile = file.asRequestBody(
-                mimeType.toMediaTypeOrNull()
-            )
 
-            val body = MultipartBody.Part.createFormData(
-                "file",
-                file.name,
-                requestFile
-            )
+            val requestFile =
+                file.asRequestBody(
+                    mimeType.toMediaTypeOrNull()
+                )
+
+
+            val body =
+                MultipartBody.Part.createFormData(
+                    "file",
+                    file.name,
+                    requestFile
+                )
+
 
             btnChangePhoto.isEnabled = false
 
-            RetrofitInstance.getApi(this)
+
+            RetrofitInstance
+                .getApi(this)
                 .uploadImage(body)
-                .enqueue(object : Callback<ImageDTO> {
+                .enqueue(
+                    object : Callback<ImageDTO> {
 
-                    override fun onResponse(
-                        call: Call<ImageDTO>,
-                        response: Response<ImageDTO>
-                    ) {
+                        override fun onResponse(
+                            call: Call<ImageDTO>,
+                            response: Response<ImageDTO>
+                        ) {
 
-                        if (response.isSuccessful) {
+                            if (response.isSuccessful) {
 
-                            val image = response.body()
+                                val image =
+                                    response.body()
 
-                            if (image != null) {
 
-                                // Connect image to user
-                                connectImageToUser(
-                                    userId,
-                                    image.id
-                                )
+                                if (image != null) {
+
+                                    // Connect image to user
+                                    connectImageToUser(
+                                        userId,
+                                        image.id
+                                    )
+
+                                } else {
+
+                                    btnChangePhoto.isEnabled =
+                                        true
+
+                                    showToast(
+                                        "Unable to upload profile photo."
+                                    )
+                                }
 
                             } else {
 
-                                btnChangePhoto.isEnabled = true
+                                btnChangePhoto.isEnabled =
+                                    true
 
-                                Toast.makeText(
-                                    this@EditProfileActivity,
-                                    "Image upload failed",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                showToast(
+                                    "Unable to upload profile photo."
+                                )
                             }
+                        }
 
-                        } else {
 
-                            btnChangePhoto.isEnabled = true
+                        override fun onFailure(
+                            call: Call<ImageDTO>,
+                            t: Throwable
+                        ) {
 
-                            Toast.makeText(
-                                this@EditProfileActivity,
-                                "Upload failed: ${response.code()}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            btnChangePhoto.isEnabled =
+                                true
+
+                            showToast(
+                                "Unable to upload profile photo."
+                            )
                         }
                     }
-
-                    override fun onFailure(
-                        call: Call<ImageDTO>,
-                        t: Throwable
-                    ) {
-
-                        btnChangePhoto.isEnabled = true
-
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Upload error: ${t.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
+                )
 
         } catch (e: Exception) {
 
-            btnChangePhoto.isEnabled = true
+            btnChangePhoto.isEnabled =
+                true
 
-            Toast.makeText(
-                this,
-                "Could not prepare image",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Unable to prepare the selected photo."
+            )
         }
     }
 
-    // =========================
+
+    // ============================================================
     // CONNECT IMAGE TO USER
-    // =========================
+    // ============================================================
 
     private fun connectImageToUser(
         userId: Int,
         imageId: Int
     ) {
 
-        RetrofitInstance.getApi(this)
+        RetrofitInstance
+            .getApi(this)
             .updateProfileImage(
                 userId,
                 imageId
             )
-            .enqueue(object : Callback<UserDTO> {
+            .enqueue(
+                object : Callback<UserDTO> {
 
-                override fun onResponse(
-                    call: Call<UserDTO>,
-                    response: Response<UserDTO>
-                ) {
+                    override fun onResponse(
+                        call: Call<UserDTO>,
+                        response: Response<UserDTO>
+                    ) {
 
-                    btnChangePhoto.isEnabled = true
+                        btnChangePhoto.isEnabled =
+                            true
 
-                    if (response.isSuccessful) {
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Photo updated",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (response.isSuccessful) {
 
-                    } else {
+                            showToast(
+                                "Profile photo updated successfully."
+                            )
 
-                        Toast.makeText(
-                            this@EditProfileActivity,
-                            "Image uploaded but could not link to profile",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        } else {
+
+                            showToast(
+                                "Photo uploaded, but the profile could not be updated."
+                            )
+                        }
+                    }
+
+
+                    override fun onFailure(
+                        call: Call<UserDTO>,
+                        t: Throwable
+                    ) {
+
+                        btnChangePhoto.isEnabled =
+                            true
+
+                        showToast(
+                            "Photo uploaded, but the profile could not be updated."
+                        )
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<UserDTO>,
-                    t: Throwable
-                ) {
-
-                    btnChangePhoto.isEnabled = true
-
-                    Toast.makeText(
-                        this@EditProfileActivity,
-                        "Could not link image: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // URI TO FILE
-    // =========================
+    // ============================================================
 
-    private fun createTempFileFromUri(uri: Uri): File {
+    private fun createTempFileFromUri(
+        uri: Uri
+    ): File {
 
-        val file = File.createTempFile(
-            "profile_",
-            ".jpg",
-            cacheDir
-        )
+        val file =
+            File.createTempFile(
+                "profile_",
+                ".jpg",
+                cacheDir
+            )
+
 
         contentResolver
             .openInputStream(uri)
@@ -545,6 +642,23 @@ class EditProfileActivity : AppCompatActivity() {
                 }
             }
 
+
         return file
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

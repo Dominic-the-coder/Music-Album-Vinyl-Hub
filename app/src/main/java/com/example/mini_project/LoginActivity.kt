@@ -27,9 +27,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnGoogle: Button
     private lateinit var txtRegister: TextView
 
-    // =========================
+
+    // ============================================================
     // GOOGLE SIGN IN
-    // =========================
+    // ============================================================
 
     private val googleSignInLauncher =
         registerForActivityResult(
@@ -54,11 +55,11 @@ class LoginActivity : AppCompatActivity() {
 
                 if (idToken.isNullOrBlank()) {
 
-                    Toast.makeText(
-                        this,
-                        "Google ID token is missing",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showToast(
+                        "Unable to sign in with Google."
+                    )
+
+                    btnGoogle.isEnabled = true
 
                     return@registerForActivityResult
                 }
@@ -67,18 +68,24 @@ class LoginActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
 
-                Toast.makeText(
-                    this,
-                    "Google Sign-In failed: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                btnGoogle.isEnabled = true
+
+                showToast(
+                    "Google Sign-In was cancelled or could not be completed."
+                )
             }
         }
+
+
+    // ============================================================
+    // ON CREATE
+    // ============================================================
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_login)
+
 
         edtEmail =
             findViewById(R.id.emailInput)
@@ -95,17 +102,19 @@ class LoginActivity : AppCompatActivity() {
         btnGoogle =
             findViewById(R.id.googleButton)
 
-        // =========================
+
+        // ========================================================
         // NORMAL LOGIN
-        // =========================
+        // ========================================================
 
         btnLogin.setOnClickListener {
             login()
         }
 
-        // =========================
+
+        // ========================================================
         // REGISTER
-        // =========================
+        // ========================================================
 
         txtRegister.setOnClickListener {
 
@@ -117,14 +126,18 @@ class LoginActivity : AppCompatActivity() {
             )
         }
 
-        // =========================
+
+        // ========================================================
         // GOOGLE LOGIN
-        // =========================
+        // ========================================================
 
         btnGoogle.setOnClickListener {
 
+            btnGoogle.isEnabled = false
+
             val googleClient =
                 GoogleSignInManager.getClient(this)
+
 
             // Clear previous Google account session
             googleClient
@@ -139,17 +152,27 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // =========================
+
+    // ============================================================
     // NORMAL LOGIN
-    // =========================
+    // ============================================================
 
     private fun login() {
 
         val email =
-            edtEmail.text.toString().trim()
+            edtEmail.text
+                .toString()
+                .trim()
 
         val password =
-            edtPassword.text.toString().trim()
+            edtPassword.text
+                .toString()
+                .trim()
+
+
+        // ========================================================
+        // VALIDATION
+        // ========================================================
 
         if (email.isEmpty()) {
 
@@ -161,6 +184,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+
         if (password.isEmpty()) {
 
             edtPassword.error =
@@ -171,7 +195,9 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+
         btnLogin.isEnabled = false
+
 
         val request =
             LoginRequest(
@@ -179,67 +205,94 @@ class LoginActivity : AppCompatActivity() {
                 password = password
             )
 
+
+        // ========================================================
+        // API LOGIN
+        // ========================================================
+
         RetrofitInstance
             .getApi(this)
             .login(request)
-            .enqueue(object : Callback<LoginResponse> {
+            .enqueue(
+                object : Callback<LoginResponse> {
 
-                override fun onResponse(
-                    call: Call<LoginResponse>,
-                    response: Response<LoginResponse>
-                ) {
+                    override fun onResponse(
+                        call: Call<LoginResponse>,
+                        response: Response<LoginResponse>
+                    ) {
 
-                    btnLogin.isEnabled = true
+                        btnLogin.isEnabled = true
 
-                    if (response.isSuccessful) {
 
-                        val loginResponse =
-                            response.body()
+                        if (response.isSuccessful) {
 
-                        if (loginResponse == null) {
+                            val loginResponse =
+                                response.body()
 
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Invalid server response",
-                                Toast.LENGTH_SHORT
-                            ).show()
 
-                            return
+                            if (loginResponse == null) {
+
+                                showToast(
+                                    "Unable to complete login. Please try again."
+                                )
+
+                                return
+                            }
+
+
+                            saveLoginSession(
+                                loginResponse
+                            )
+
+                        } else {
+
+                            when (response.code()) {
+
+                                400,
+                                401 -> {
+
+                                    showToast(
+                                        "Incorrect email or password."
+                                    )
+                                }
+
+                                404 -> {
+
+                                    showToast(
+                                        "Account not found."
+                                    )
+                                }
+
+                                else -> {
+
+                                    showToast(
+                                        "Unable to log in. Please try again."
+                                    )
+                                }
+                            }
                         }
+                    }
 
-                        saveLoginSession(
-                            loginResponse
+
+                    override fun onFailure(
+                        call: Call<LoginResponse>,
+                        t: Throwable
+                    ) {
+
+                        btnLogin.isEnabled = true
+
+                        showToast(
+                            "Unable to connect to the server."
                         )
-
-                    } else {
-
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Login failed: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<LoginResponse>,
-                    t: Throwable
-                ) {
-
-                    btnLogin.isEnabled = true
-
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Network error: ${t.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // GOOGLE LOGIN
-    // =========================
+    // ============================================================
 
     private fun loginWithGoogle(
         idToken: String
@@ -247,72 +300,96 @@ class LoginActivity : AppCompatActivity() {
 
         btnGoogle.isEnabled = false
 
+
         val request =
             GoogleLoginRequest(
                 idToken = idToken
             )
 
+
         RetrofitInstance
             .getApi(this)
             .googleLogin(request)
-            .enqueue(object : Callback<LoginResponse> {
+            .enqueue(
+                object : Callback<LoginResponse> {
 
-                override fun onResponse(
-                    call: Call<LoginResponse>,
-                    response: Response<LoginResponse>
-                ) {
+                    override fun onResponse(
+                        call: Call<LoginResponse>,
+                        response: Response<LoginResponse>
+                    ) {
 
-                    btnGoogle.isEnabled = true
+                        btnGoogle.isEnabled = true
 
-                    if (response.isSuccessful) {
 
-                        val loginResponse =
-                            response.body()
+                        if (response.isSuccessful) {
 
-                        if (loginResponse == null) {
+                            val loginResponse =
+                                response.body()
 
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Invalid Google login response",
-                                Toast.LENGTH_LONG
-                            ).show()
 
-                            return
+                            if (loginResponse == null) {
+
+                                showToast(
+                                    "Unable to complete Google login. Please try again."
+                                )
+
+                                return
+                            }
+
+
+                            saveLoginSession(
+                                loginResponse
+                            )
+
+                        } else {
+
+                            when (response.code()) {
+
+                                400,
+                                401 -> {
+
+                                    showToast(
+                                        "Google authentication failed."
+                                    )
+                                }
+
+                                403 -> {
+
+                                    showToast(
+                                        "Google account could not be authenticated."
+                                    )
+                                }
+
+                                else -> {
+
+                                    showToast(
+                                        "Unable to log in with Google. Please try again."
+                                    )
+                                }
+                            }
                         }
+                    }
 
-                        saveLoginSession(
-                            loginResponse
+
+                    override fun onFailure(
+                        call: Call<LoginResponse>,
+                        t: Throwable
+                    ) {
+
+                        btnGoogle.isEnabled = true
+
+                        showToast(
+                            "Unable to connect to the server."
                         )
-
-                    } else {
-
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Google login failed: ${response.code()}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<LoginResponse>,
-                    t: Throwable
-                ) {
-
-                    btnGoogle.isEnabled = true
-
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Google server error: ${t.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // SAVE LOGIN SESSION
-    // =========================
+    // ============================================================
 
     private fun saveLoginSession(
         loginResponse: LoginResponse
@@ -323,10 +400,12 @@ class LoginActivity : AppCompatActivity() {
             loginResponse.token
         )
 
+
         Auth.setUserId(
             this,
             loginResponse.userId
         )
+
 
         val intent =
             Intent(
@@ -334,12 +413,30 @@ class LoginActivity : AppCompatActivity() {
                 MainActivity::class.java
             )
 
+
         intent.flags =
             Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TASK
 
+
         startActivity(intent)
 
         finish()
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

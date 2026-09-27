@@ -21,6 +21,7 @@ class RegisterActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_register)
 
+
         val nameInput =
             findViewById<TextInputEditText>(
                 R.id.nameInput
@@ -51,49 +52,101 @@ class RegisterActivity : AppCompatActivity() {
                 R.id.goToLogin
             )
 
+
+        // ========================================================
+        // REGISTER
+        // ========================================================
+
         signupButton.setOnClickListener {
 
             val name =
-                nameInput.text.toString().trim()
+                nameInput.text
+                    .toString()
+                    .trim()
 
             val email =
-                emailInput.text.toString().trim()
+                emailInput.text
+                    .toString()
+                    .trim()
 
             val password =
-                passwordInput.text.toString()
+                passwordInput.text
+                    .toString()
 
             val confirmPassword =
-                confirmPasswordInput.text.toString()
+                confirmPasswordInput.text
+                    .toString()
+
+
+            // ====================================================
+            // VALIDATION
+            // ====================================================
 
             if (name.isEmpty()) {
-                nameInput.error = "Name is required"
+
+                nameInput.error =
+                    "Enter your name"
+
+                nameInput.requestFocus()
+
                 return@setOnClickListener
             }
+
 
             if (email.isEmpty()) {
-                emailInput.error = "Email is required"
+
+                emailInput.error =
+                    "Enter your email"
+
+                emailInput.requestFocus()
+
                 return@setOnClickListener
             }
+
 
             if (password.isEmpty()) {
-                passwordInput.error = "Password is required"
+
+                passwordInput.error =
+                    "Enter a password"
+
+                passwordInput.requestFocus()
+
                 return@setOnClickListener
             }
 
+
             if (password.length < 6) {
+
                 passwordInput.error =
                     "Password must be at least 6 characters"
 
+                passwordInput.requestFocus()
+
                 return@setOnClickListener
             }
+
+
+            if (confirmPassword.isEmpty()) {
+
+                confirmPasswordInput.error =
+                    "Confirm your password"
+
+                confirmPasswordInput.requestFocus()
+
+                return@setOnClickListener
+            }
+
 
             if (password != confirmPassword) {
 
                 confirmPasswordInput.error =
                     "Passwords do not match"
 
+                confirmPasswordInput.requestFocus()
+
                 return@setOnClickListener
             }
+
 
             register(
                 name,
@@ -102,11 +155,28 @@ class RegisterActivity : AppCompatActivity() {
             )
         }
 
+
+        // ========================================================
+        // GO TO LOGIN
+        // ========================================================
+
         goToLogin.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+
+            startActivity(
+                Intent(
+                    this,
+                    LoginActivity::class.java
+                )
+            )
+
+            finish()
         }
     }
+
+
+    // ============================================================
+    // REGISTER
+    // ============================================================
 
     private fun register(
         name: String,
@@ -121,69 +191,100 @@ class RegisterActivity : AppCompatActivity() {
                 password = password
             )
 
+
         RetrofitInstance
             .getApi(this)
             .register(request)
-            .enqueue(object : Callback<RegisterResponse> {
+            .enqueue(
+                object : Callback<RegisterResponse> {
 
-                override fun onResponse(
-                    call: Call<RegisterResponse>,
-                    response: Response<RegisterResponse>
-                ) {
+                    override fun onResponse(
+                        call: Call<RegisterResponse>,
+                        response: Response<RegisterResponse>
+                    ) {
 
-                    if (response.isSuccessful) {
+                        if (response.isSuccessful) {
 
-                        val registerResponse = response.body()
-
-                        Toast.makeText(
-                            this@RegisterActivity,
-                            registerResponse?.message
-                                ?: "Registration successful",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        startActivity(
-                            Intent(
-                                this@RegisterActivity,
-                                LoginActivity::class.java
+                            showToast(
+                                "Account created successfully."
                             )
-                        )
 
-                        finish()
 
-                    } else {
+                            startActivity(
+                                Intent(
+                                    this@RegisterActivity,
+                                    LoginActivity::class.java
+                                )
+                            )
 
-                        val message = when (response.code()) {
 
-                            400 -> "Invalid registration details"
+                            finish()
 
-                            409 -> "Email already exists"
+                        } else {
 
-                            500 -> "Server error"
+                            when (response.code()) {
 
-                            else ->
-                                "Registration failed: ${response.code()}"
+                                400 -> {
+
+                                    showToast(
+                                        "Please check your registration details."
+                                    )
+                                }
+
+
+                                409 -> {
+
+                                    showToast(
+                                        "An account with this email already exists."
+                                    )
+                                }
+
+
+                                500 -> {
+
+                                    showToast(
+                                        "Unable to create your account. Please try again."
+                                    )
+                                }
+
+
+                                else -> {
+
+                                    showToast(
+                                        "Unable to create your account. Please try again."
+                                    )
+                                }
+                            }
                         }
+                    }
 
-                        Toast.makeText(
-                            this@RegisterActivity,
-                            message,
-                            Toast.LENGTH_SHORT
-                        ).show()
+
+                    override fun onFailure(
+                        call: Call<RegisterResponse>,
+                        t: Throwable
+                    ) {
+
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
+            )
+    }
 
-                override fun onFailure(
-                    call: Call<RegisterResponse>,
-                    t: Throwable
-                ) {
 
-                    Toast.makeText(
-                        this@RegisterActivity,
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

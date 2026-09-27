@@ -36,12 +36,8 @@ class AlbumDetailFragment :
     private lateinit var btnDetailAddCart: MaterialButton
     private lateinit var songRecyclerView: RecyclerView
 
-    /*
-     * Keep a reference to SongAdapter so we
-     * can stop music when leaving the screen.
-     */
-    private var songAdapter: SongAdapter? =
-        null
+    private var songAdapter: SongAdapter? = null
+
 
     override fun onViewCreated(
         view: View,
@@ -96,6 +92,7 @@ class AlbumDetailFragment :
                 R.id.btnBack
             )
 
+
         songRecyclerView.layoutManager =
             LinearLayoutManager(
                 requireContext()
@@ -104,11 +101,11 @@ class AlbumDetailFragment :
         songRecyclerView.isNestedScrollingEnabled =
             false
 
-        /*
-         * Back button.
-         *
-         * Stop music BEFORE leaving the fragment.
-         */
+
+        // ========================================================
+        // BACK BUTTON
+        // ========================================================
+
         btnBack.setOnClickListener {
 
             songAdapter?.stopMusic()
@@ -117,19 +114,19 @@ class AlbumDetailFragment :
                 .popBackStack()
         }
 
+
         val albumId =
             arguments?.getInt(
                 "albumId",
                 -1
             ) ?: -1
 
+
         if (albumId == -1) {
 
-            Toast.makeText(
-                requireContext(),
-                "Album not found",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Album could not be found."
+            )
 
             parentFragmentManager
                 .popBackStack()
@@ -137,9 +134,14 @@ class AlbumDetailFragment :
             return
         }
 
+
         loadAlbum(albumId)
     }
 
+
+    // ============================================================
+    // LOAD ALBUM
+    // ============================================================
 
     private fun loadAlbum(
         albumId: Int
@@ -157,33 +159,33 @@ class AlbumDetailFragment :
                         return
                     }
 
+
                     if (!response.isSuccessful) {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to load album",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to load album information."
+                        )
 
                         return
                     }
 
+
                     val albums =
                         response.body()
                             ?: emptyList()
+
 
                     val album =
                         albums.find {
                             it.id == albumId
                         }
 
+
                     if (album == null) {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Album not found",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Album could not be found."
+                        )
 
                         parentFragmentManager
                             .popBackStack()
@@ -191,8 +193,10 @@ class AlbumDetailFragment :
                         return
                     }
 
+
                     displayAlbum(album)
                 }
+
 
                 override fun onFailure(
                     call: Call<List<AlbumDTO>>,
@@ -203,24 +207,24 @@ class AlbumDetailFragment :
                         return
                     }
 
-                    Toast.makeText(
-                        requireContext(),
-                        "Network error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+                    showToast(
+                        "Unable to load album. Please try again."
+                    )
                 }
             }
         )
     }
 
 
+    // ============================================================
+    // DISPLAY ALBUM
+    // ============================================================
+
     private fun displayAlbum(
         album: AlbumDTO
     ) {
 
-        /*
-         * Album information.
-         */
         txtAlbumDetailTitle.text =
             album.title
 
@@ -233,9 +237,11 @@ class AlbumDetailFragment :
                 album.price
             )
 
-        /*
-         * Album image.
-         */
+
+        // ========================================================
+        // ALBUM IMAGE
+        // ========================================================
+
         if (
             !album.imageUrl.isNullOrEmpty()
         ) {
@@ -257,24 +263,32 @@ class AlbumDetailFragment :
             )
         }
 
-        /*
-         * Create SongAdapter.
-         */
+
+        // ========================================================
+        // SONGS
+        // ========================================================
+
         songAdapter =
             SongAdapter(album.songs)
 
         songRecyclerView.adapter =
             songAdapter
 
-        /*
-         * Add album to cart.
-         */
+
+        // ========================================================
+        // ADD TO CART
+        // ========================================================
+
         btnDetailAddCart.setOnClickListener {
 
             addToCart(album)
         }
     }
 
+
+    // ============================================================
+    // ADD TO CART
+    // ============================================================
 
     private fun addToCart(
         album: AlbumDTO
@@ -283,22 +297,24 @@ class AlbumDetailFragment :
         val context =
             requireContext()
 
+
         val userId =
             Auth.getUserId(context)
 
+
         if (userId == -1) {
 
-            Toast.makeText(
-                context,
-                "Please login first",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in to add items to your cart."
+            )
 
             return
         }
 
+
         btnDetailAddCart.isEnabled =
             false
+
 
         cartService
             .addToCart(
@@ -318,26 +334,25 @@ class AlbumDetailFragment :
                             return
                         }
 
+
                         btnDetailAddCart.isEnabled =
                             true
 
+
                         if (response.isSuccessful) {
 
-                            Toast.makeText(
-                                requireContext(),
-                                "${album.title} added to cart",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "${album.title} added to your cart."
+                            )
 
                         } else {
 
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to add ${album.title} to cart",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Unable to add this album to your cart."
+                            )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<CartDTO>,
@@ -348,33 +363,45 @@ class AlbumDetailFragment :
                             return
                         }
 
+
                         btnDetailAddCart.isEnabled =
                             true
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
+                        showToast(
+                            "Unable to add the album to your cart. Please try again."
+                        )
                     }
                 }
             )
     }
 
 
-    /*
-     * Stop music when the fragment's view
-     * is destroyed.
-     *
-     * This also covers navigation away from
-     * the screen through other methods.
-     */
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            requireContext(),
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+
+    // ============================================================
+    // STOP MUSIC
+    // ============================================================
+
     override fun onDestroyView() {
 
         songAdapter?.stopMusic()
 
-        songAdapter =
-            null
+        songAdapter = null
 
         super.onDestroyView()
     }

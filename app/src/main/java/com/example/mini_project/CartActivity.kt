@@ -44,9 +44,7 @@ class CartActivity : AppCompatActivity() {
     private var cartId: Int = -1
 
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_cart)
@@ -70,42 +68,29 @@ class CartActivity : AppCompatActivity() {
             insets
         }
 
-
         val recyclerView =
             findViewById<RecyclerView>(
                 R.id.cartRecyclerView
             )
 
-
         txtSubtotal =
-            findViewById(
-                R.id.txtSubtotal
-            )
-
+            findViewById(R.id.txtSubtotal)
 
         txtShipping =
-            findViewById(
-                R.id.txtShipping
-            )
-
+            findViewById(R.id.txtShipping)
 
         txtTotal =
-            findViewById(
-                R.id.txtTotal
-            )
-
+            findViewById(R.id.txtTotal)
 
         val btnBack =
             findViewById<ImageView>(
                 R.id.btnBack
             )
 
-
         val btnCheckout =
             findViewById<MaterialButton>(
                 R.id.btnCheckout
             )
-
 
         cartService =
             CartService(
@@ -123,13 +108,11 @@ class CartActivity : AppCompatActivity() {
                 albums,
 
                 onDelete = { item ->
-
                     deleteCartItem(item)
                 },
 
                 onChange = { updatedItem ->
 
-                    // Update local quantity
                     val index =
                         cartItems.indexOfFirst {
                             it.id == updatedItem.id
@@ -141,21 +124,16 @@ class CartActivity : AppCompatActivity() {
                             updatedItem
                     }
 
-                    // Update total immediately
                     calculateTotal()
 
-                    // IMPORTANT:
-                    // Save quantity to backend
                     updateCartItemOnServer(
                         updatedItem
                     )
                 }
             )
 
-
         recyclerView.layoutManager =
             LinearLayoutManager(this)
-
 
         recyclerView.adapter =
             adapter
@@ -166,7 +144,6 @@ class CartActivity : AppCompatActivity() {
         // ========================================================
 
         btnBack.setOnClickListener {
-
             finish()
         }
 
@@ -179,34 +156,27 @@ class CartActivity : AppCompatActivity() {
 
             if (cartItems.isEmpty()) {
 
-                Toast.makeText(
-                    this,
-                    "Your cart is empty",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast(
+                    "Your cart is empty"
+                )
 
                 return@setOnClickListener
             }
-
 
             if (cartId == -1) {
 
-                Toast.makeText(
-                    this,
-                    "Cart not loaded",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showToast(
+                    "Cart is not available. Please try again."
+                )
 
                 return@setOnClickListener
             }
-
 
             createCheckoutSession()
         }
 
 
         loadAlbums()
-
         loadCart()
     }
 
@@ -221,8 +191,7 @@ class CartActivity : AppCompatActivity() {
             .getApi(this)
             .getAlbums()
             .enqueue(
-                object :
-                    Callback<List<AlbumDTO>> {
+                object : Callback<List<AlbumDTO>> {
 
                     override fun onResponse(
                         call: Call<List<AlbumDTO>>,
@@ -238,20 +207,23 @@ class CartActivity : AppCompatActivity() {
                             adapter.updateAlbums(
                                 albums
                             )
+
+                        } else {
+
+                            showToast(
+                                "Unable to load album information."
+                            )
                         }
                     }
-
 
                     override fun onFailure(
                         call: Call<List<AlbumDTO>>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Album network error: ${t.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
             )
@@ -267,18 +239,14 @@ class CartActivity : AppCompatActivity() {
         val userId =
             Auth.getUserId(this)
 
-
         if (userId == -1) {
 
-            Toast.makeText(
-                this,
-                "Please login first",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in to view your cart."
+            )
 
             return
         }
-
 
         cartService
             .getCartByUserId(userId)
@@ -295,15 +263,7 @@ class CartActivity : AppCompatActivity() {
                             val cart =
                                 response.body()
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Items from server: ${cart?.items?.size ?: 0}",
-                                Toast.LENGTH_LONG
-                            ).show()
-
-
                             cartItems.clear()
-
 
                             if (cart != null) {
 
@@ -313,55 +273,46 @@ class CartActivity : AppCompatActivity() {
                                 cartItems.addAll(
                                     cart.items
                                 )
-                            }
 
+                            } else {
+
+                                cartId = -1
+                            }
 
                             adapter.updateList(
                                 cartItems
                             )
 
-
                             calculateTotal()
-                        }
 
-                        else if (
-                            response.code() == 404
-                        ) {
+                        } else if (response.code() == 404) {
 
                             cartId = -1
 
                             cartItems.clear()
 
-
                             adapter.updateList(
                                 cartItems
                             )
 
-
                             calculateTotal()
-                        }
 
-                        else {
+                        } else {
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Failed to load cart: ${response.code()}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Unable to load your cart. Please try again."
+                            )
                         }
                     }
-
 
                     override fun onFailure(
                         call: Call<CartDTO>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
             )
@@ -394,15 +345,12 @@ class CartActivity : AppCompatActivity() {
                             val updatedItem =
                                 response.body()
 
-
                             if (updatedItem != null) {
 
                                 val index =
                                     cartItems.indexOfFirst {
-                                        it.id ==
-                                                updatedItem.id
+                                        it.id == updatedItem.id
                                     }
-
 
                                 if (index != -1) {
 
@@ -411,38 +359,27 @@ class CartActivity : AppCompatActivity() {
                                 }
                             }
 
-
                             calculateTotal()
-                        }
 
-                        else {
+                        } else {
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Failed to save quantity",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Unable to update cart quantity."
+                            )
 
-
-                            // Reload database version
                             loadCart()
                         }
                     }
-
 
                     override fun onFailure(
                         call: Call<CartItemDTO>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Failed to save quantity",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to update cart quantity."
+                        )
 
-
-                        // Reload database version
                         loadCart()
                     }
                 }
@@ -461,15 +398,13 @@ class CartActivity : AppCompatActivity() {
                 cartId = cartId
             )
 
-
         RetrofitInstance
             .getApi(this)
             .createCheckoutSession(
                 request
             )
             .enqueue(
-                object :
-                    Callback<PaymentResponse> {
+                object : Callback<PaymentResponse> {
 
                     override fun onResponse(
                         call: Call<PaymentResponse>,
@@ -481,57 +416,41 @@ class CartActivity : AppCompatActivity() {
                             val error =
                                 response.errorBody()
                                     ?.string()
-                                    ?: "Unknown server error"
 
-
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Checkout failed: $error",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            showToast(
+                                if (!error.isNullOrBlank()) {
+                                    "Checkout failed. Please try again."
+                                } else {
+                                    "Unable to start checkout."
+                                }
+                            )
 
                             return
                         }
-
 
                         val paymentResponse =
                             response.body()
 
-
                         if (paymentResponse == null) {
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Payment response is empty",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            showToast(
+                                "Unable to start checkout. Please try again."
+                            )
 
                             return
                         }
-
 
                         val checkoutUrl =
                             paymentResponse.checkoutUrl
 
-
                         if (checkoutUrl.isBlank()) {
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Stripe URL is empty",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            showToast(
+                                "Payment service is unavailable."
+                            )
 
                             return
                         }
-
-
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Opening Stripe...",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
 
                         val intent =
                             Intent(
@@ -539,21 +458,26 @@ class CartActivity : AppCompatActivity() {
                                 Uri.parse(checkoutUrl)
                             )
 
+                        try {
 
-                        startActivity(intent)
+                            startActivity(intent)
+
+                        } catch (e: Exception) {
+
+                            showToast(
+                                "Unable to open the payment page."
+                            )
+                        }
                     }
-
 
                     override fun onFailure(
                         call: Call<PaymentResponse>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Connection failed: ${t.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        showToast(
+                            "Unable to connect to the payment service."
+                        )
                     }
                 }
             )
@@ -582,48 +506,34 @@ class CartActivity : AppCompatActivity() {
 
                         if (response.isSuccessful) {
 
-                            cartItems.remove(
-                                item
-                            )
-
+                            cartItems.remove(item)
 
                             adapter.updateList(
                                 cartItems
                             )
 
-
                             calculateTotal()
 
+                            showToast(
+                                "Item removed from cart."
+                            )
 
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Removed from cart",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        } else {
 
-                        }
-
-                        else {
-
-                            Toast.makeText(
-                                this@CartActivity,
-                                "Failed to remove item",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Unable to remove item from cart."
+                            )
                         }
                     }
-
 
                     override fun onFailure(
                         call: Call<Void>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            this@CartActivity,
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
             )
@@ -641,14 +551,11 @@ class CartActivity : AppCompatActivity() {
                 it.price * it.quantity
             }
 
-
         val shipping =
             0.00
 
-
         val total =
             subtotal + shipping
-
 
         txtSubtotal.text =
             String.format(
@@ -656,18 +563,32 @@ class CartActivity : AppCompatActivity() {
                 subtotal
             )
 
-
         txtShipping.text =
             String.format(
                 "RM %.2f",
                 shipping
             )
 
-
         txtTotal.text =
             String.format(
                 "RM %.2f",
                 total
             )
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

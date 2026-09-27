@@ -33,17 +33,29 @@ class OrderHistoryFragment :
     private var albums =
         emptyList<AlbumDTO>()
 
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(view, savedInstanceState)
+
+        super.onViewCreated(
+            view,
+            savedInstanceState
+        )
+
 
         recyclerView =
-            view.findViewById(R.id.orderRecyclerView)
+            view.findViewById(
+                R.id.orderRecyclerView
+            )
+
 
         val btnBack =
-            view.findViewById<ImageView>(R.id.btnBack)
+            view.findViewById<ImageView>(
+                R.id.btnBack
+            )
+
 
         orderService =
             OrderService(
@@ -52,25 +64,31 @@ class OrderHistoryFragment :
                 )
             )
 
+
         adapter =
             OrderAdapter(
                 orders = orders,
                 albums = albums,
+
                 onViewOrder = { order ->
 
                     val detailFragment =
                         OrderDetailFragment()
 
+
                     val bundle =
                         Bundle()
+
 
                     bundle.putInt(
                         "orderId",
                         order.id
                     )
 
+
                     detailFragment.arguments =
                         bundle
+
 
                     requireActivity()
                         .supportFragmentManager
@@ -84,15 +102,26 @@ class OrderHistoryFragment :
                 }
             )
 
-        recyclerView.layoutManager =
-            LinearLayoutManager(requireContext())
 
-        recyclerView.adapter = adapter
+        recyclerView.layoutManager =
+            LinearLayoutManager(
+                requireContext()
+            )
+
+
+        recyclerView.adapter =
+            adapter
+
+
+        // ========================================================
+        // BACK BUTTON
+        // ========================================================
 
         btnBack.setOnClickListener {
 
             val mainActivity =
                 requireActivity() as MainActivity
+
 
             val bottomNavContainer =
                 requireActivity()
@@ -100,15 +129,21 @@ class OrderHistoryFragment :
                         R.id.bottomNavContainer
                     )
 
+
             val bottomNav =
                 bottomNavContainer
                     .findViewById<BottomNavigationView>(
                         R.id.bottomNav
                     )
 
-            if (mainActivity.ordersOpenedFromProfile) {
 
-                mainActivity.ordersOpenedFromProfile = false
+            if (
+                mainActivity.ordersOpenedFromProfile
+            ) {
+
+                mainActivity.ordersOpenedFromProfile =
+                    false
+
 
                 bottomNav.selectedItemId =
                     R.id.nav_profile
@@ -120,9 +155,15 @@ class OrderHistoryFragment :
             }
         }
 
+
         loadAlbums()
         loadOrders()
     }
+
+
+    // ============================================================
+    // LOAD ALBUMS
+    // ============================================================
 
     private fun loadAlbums() {
 
@@ -130,6 +171,7 @@ class OrderHistoryFragment :
             RetrofitInstance.getApi(
                 requireContext()
             )
+
 
         api.getAlbums()
             .enqueue(
@@ -144,17 +186,26 @@ class OrderHistoryFragment :
                             return
                         }
 
+
                         if (response.isSuccessful) {
 
                             albums =
                                 response.body()
                                     ?: emptyList()
 
+
                             adapter.updateAlbums(
                                 albums
                             )
+
+                        } else {
+
+                            showToast(
+                                "Unable to load album information."
+                            )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<List<AlbumDTO>>,
@@ -165,15 +216,19 @@ class OrderHistoryFragment :
                             return
                         }
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to load albums",
-                            Toast.LENGTH_SHORT
-                        ).show()
+
+                        showToast(
+                            "Unable to load album information. Please try again."
+                        )
                     }
                 }
             )
     }
+
+
+    // ============================================================
+    // LOAD ORDERS
+    // ============================================================
 
     private fun loadOrders() {
 
@@ -182,22 +237,30 @@ class OrderHistoryFragment :
                 requireContext()
             )
 
+
         orders.clear()
-        adapter.updateList(emptyList())
+
+        if (::adapter.isInitialized) {
+            adapter.updateList(
+                emptyList()
+            )
+        }
+
 
         if (userId == -1) {
 
-            Toast.makeText(
-                requireContext(),
-                "Please login first",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in to view your orders."
+            )
 
             return
         }
 
+
         orderService
-            .getOrdersByUserId(userId)
+            .getOrdersByUserId(
+                userId
+            )
             .enqueue(
                 object : Callback<List<OrderDTO>> {
 
@@ -210,38 +273,48 @@ class OrderHistoryFragment :
                             return
                         }
 
+
                         if (response.isSuccessful) {
 
                             val result =
                                 response.body()
                                     ?: emptyList()
 
-                            orders.clear()
-                            orders.addAll(result)
 
-                            adapter.updateList(result)
+                            orders.clear()
+
+                            orders.addAll(
+                                result
+                            )
+
+
+                            adapter.updateList(
+                                result
+                            )
+
 
                             if (result.isEmpty()) {
 
-                                Toast.makeText(
-                                    requireContext(),
-                                    "No orders found",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                showToast(
+                                    "You have no orders yet."
+                                )
                             }
 
                         } else {
 
                             orders.clear()
-                            adapter.updateList(emptyList())
 
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to load orders: ${response.code()}",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            adapter.updateList(
+                                emptyList()
+                            )
+
+
+                            showToast(
+                                "Unable to load your orders. Please try again."
+                            )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<List<OrderDTO>>,
@@ -252,25 +325,51 @@ class OrderHistoryFragment :
                             return
                         }
 
-                        orders.clear()
-                        adapter.updateList(emptyList())
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        orders.clear()
+
+                        adapter.updateList(
+                            emptyList()
+                        )
+
+
+                        showToast(
+                            "Unable to load your orders. Please try again."
+                        )
                     }
                 }
             )
     }
 
+
+    // ============================================================
+    // RESUME
+    // ============================================================
+
     override fun onResume() {
 
         super.onResume()
 
+
         if (::adapter.isInitialized) {
+
             loadOrders()
         }
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            requireContext(),
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

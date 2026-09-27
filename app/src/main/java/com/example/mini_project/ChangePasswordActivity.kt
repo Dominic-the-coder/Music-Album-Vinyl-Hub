@@ -22,6 +22,7 @@ class ChangePasswordActivity : AppCompatActivity() {
     private lateinit var btnChangePassword: MaterialButton
     private lateinit var btnBack: ImageView
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,20 +44,28 @@ class ChangePasswordActivity : AppCompatActivity() {
             findViewById(R.id.btnBack)
 
 
+        // ========================================================
         // BACK
+        // ========================================================
 
         btnBack.setOnClickListener {
             finish()
         }
 
 
+        // ========================================================
         // CHANGE PASSWORD
+        // ========================================================
 
         btnChangePassword.setOnClickListener {
             changePassword()
         }
     }
 
+
+    // ============================================================
+    // CHANGE PASSWORD
+    // ============================================================
 
     private fun changePassword() {
 
@@ -76,71 +85,96 @@ class ChangePasswordActivity : AppCompatActivity() {
                 .trim()
 
 
+        // ========================================================
         // VALIDATION
+        // ========================================================
 
         if (currentPassword.isEmpty()) {
 
             edtCurrentPassword.error =
                 "Enter your current password"
 
+            edtCurrentPassword.requestFocus()
+
             return
         }
+
 
         if (newPassword.isEmpty()) {
 
             edtNewPassword.error =
                 "Enter a new password"
 
+            edtNewPassword.requestFocus()
+
             return
         }
+
 
         if (newPassword.length < 6) {
 
             edtNewPassword.error =
                 "Password must be at least 6 characters"
 
+            edtNewPassword.requestFocus()
+
             return
         }
+
 
         if (confirmPassword.isEmpty()) {
 
             edtConfirmPassword.error =
                 "Confirm your new password"
 
+            edtConfirmPassword.requestFocus()
+
             return
         }
+
 
         if (newPassword != confirmPassword) {
 
             edtConfirmPassword.error =
                 "Passwords do not match"
 
+            edtConfirmPassword.requestFocus()
+
             return
         }
+
 
         if (currentPassword == newPassword) {
 
             edtNewPassword.error =
-                "New password must be different"
+                "New password must be different from your current password"
+
+            edtNewPassword.requestFocus()
 
             return
         }
 
+
+        // ========================================================
+        // GET USER
+        // ========================================================
 
         val userId =
             Auth.getUserId(this)
 
         if (userId == -1) {
 
-            Toast.makeText(
-                this,
-                "User not found",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in again."
+            )
 
             return
         }
 
+
+        // ========================================================
+        // REQUEST
+        // ========================================================
 
         val request =
             ChangePasswordRequest(
@@ -149,8 +183,16 @@ class ChangePasswordActivity : AppCompatActivity() {
             )
 
 
+        // ========================================================
+        // DISABLE BUTTON
+        // ========================================================
+
         btnChangePassword.isEnabled = false
 
+
+        // ========================================================
+        // API REQUEST
+        // ========================================================
 
         RetrofitInstance
             .getApi(this)
@@ -168,46 +210,54 @@ class ChangePasswordActivity : AppCompatActivity() {
 
                         btnChangePassword.isEnabled = true
 
+
                         if (response.isSuccessful) {
 
-                            Toast.makeText(
-                                this@ChangePasswordActivity,
-                                "Password changed successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Password changed successfully."
+                            )
 
                             finish()
 
-                        } else {
+                            return
+                        }
 
-                            when (response.code()) {
 
-                                400 -> {
-                                    Toast.makeText(
-                                        this@ChangePasswordActivity,
-                                        "Current password is incorrect",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                        when (response.code()) {
 
-                                404 -> {
-                                    Toast.makeText(
-                                        this@ChangePasswordActivity,
-                                        "User not found",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                            400 -> {
 
-                                else -> {
-                                    Toast.makeText(
-                                        this@ChangePasswordActivity,
-                                        "Failed to change password: ${response.code()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                showToast(
+                                    "Current password is incorrect."
+                                )
+                            }
+
+
+                            401 -> {
+
+                                showToast(
+                                    "Your session has expired. Please log in again."
+                                )
+                            }
+
+
+                            404 -> {
+
+                                showToast(
+                                    "User account could not be found."
+                                )
+                            }
+
+
+                            else -> {
+
+                                showToast(
+                                    "Unable to change password. Please try again."
+                                )
                             }
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<ChangePasswordResponse>,
@@ -216,13 +266,27 @@ class ChangePasswordActivity : AppCompatActivity() {
 
                         btnChangePassword.isEnabled = true
 
-                        Toast.makeText(
-                            this@ChangePasswordActivity,
-                            "Connection error: ${t.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to connect to the server."
+                        )
                     }
                 }
             )
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

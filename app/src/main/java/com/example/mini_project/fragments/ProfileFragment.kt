@@ -33,10 +33,12 @@ class ProfileFragment :
     private var txtProfileEmail: TextView? = null
     private var imgProfile: ImageView? = null
 
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
+
         super.onViewCreated(
             view,
             savedInstanceState
@@ -44,6 +46,7 @@ class ProfileFragment :
 
         setupProfile(view)
     }
+
 
     override fun onResume() {
 
@@ -64,34 +67,60 @@ class ProfileFragment :
         }
     }
 
-    private fun setupProfile(view: View) {
+
+    // ============================================================
+    // SETUP PROFILE
+    // ============================================================
+
+    private fun setupProfile(
+        view: View
+    ) {
 
         txtProfileName =
-            view.findViewById(R.id.txtProfileName)
+            view.findViewById(
+                R.id.txtProfileName
+            )
 
         txtProfileEmail =
-            view.findViewById(R.id.txtProfileEmail)
+            view.findViewById(
+                R.id.txtProfileEmail
+            )
 
         imgProfile =
-            view.findViewById(R.id.imgProfile)
+            view.findViewById(
+                R.id.imgProfile
+            )
+
 
         val btnBack =
-            view.findViewById<ImageView>(R.id.btnBack)
+            view.findViewById<ImageView>(
+                R.id.btnBack
+            )
 
         val btnEditProfile =
-            view.findViewById<ImageView>(R.id.btnEditProfile)
+            view.findViewById<ImageView>(
+                R.id.btnEditProfile
+            )
 
         val btnOrders =
-            view.findViewById<View>(R.id.btnOrders)
+            view.findViewById<View>(
+                R.id.btnOrders
+            )
 
         val btnPayment =
-            view.findViewById<View>(R.id.btnPayment)
+            view.findViewById<View>(
+                R.id.btnPayment
+            )
 
         val btnChangePassword =
-            view.findViewById<View>(R.id.btnChangePassword)
+            view.findViewById<View>(
+                R.id.btnChangePassword
+            )
 
         val btnAbout =
-            view.findViewById<View>(R.id.btnAbout)
+            view.findViewById<View>(
+                R.id.btnAbout
+            )
 
         val switchNotification =
             view.findViewById<MaterialSwitch>(
@@ -99,11 +128,14 @@ class ProfileFragment :
             )
 
         val btnLogout =
-            view.findViewById<View>(R.id.btnLogout)
+            view.findViewById<View>(
+                R.id.btnLogout
+            )
 
-        // =========================
+
+        // ========================================================
         // BACK
-        // =========================
+        // ========================================================
 
         btnBack.setOnClickListener {
 
@@ -117,9 +149,10 @@ class ProfileFragment :
                 R.id.nav_home
         }
 
-        // =========================
+
+        // ========================================================
         // LOAD PROFILE
-        // =========================
+        // ========================================================
 
         txtProfileName?.let { name ->
 
@@ -132,9 +165,10 @@ class ProfileFragment :
             }
         }
 
-        // =========================
+
+        // ========================================================
         // EDIT PROFILE
-        // =========================
+        // ========================================================
 
         btnEditProfile.setOnClickListener {
 
@@ -146,9 +180,10 @@ class ProfileFragment :
             )
         }
 
-        // =========================
+
+        // ========================================================
         // ORDERS
-        // =========================
+        // ========================================================
 
         btnOrders.setOnClickListener {
 
@@ -157,6 +192,7 @@ class ProfileFragment :
 
             mainActivity.ordersOpenedFromProfile =
                 true
+
 
             val bottomNav =
                 requireActivity()
@@ -168,9 +204,10 @@ class ProfileFragment :
                 R.id.nav_order
         }
 
-        // =========================
+
+        // ========================================================
         // CART
-        // =========================
+        // ========================================================
 
         btnPayment.setOnClickListener {
 
@@ -182,9 +219,10 @@ class ProfileFragment :
             )
         }
 
-        // =========================
+
+        // ========================================================
         // CHANGE PASSWORD
-        // =========================
+        // ========================================================
 
         btnChangePassword.setOnClickListener {
 
@@ -196,17 +234,20 @@ class ProfileFragment :
             )
         }
 
-        // =========================
+
+        // ========================================================
         // DARK MODE
-        // =========================
+        // ========================================================
 
         val darkMode =
             ThemeManager.isDarkMode(
                 requireContext()
             )
 
+
         switchNotification.isChecked =
             darkMode
+
 
         switchNotification.setOnCheckedChangeListener {
                 _,
@@ -218,29 +259,32 @@ class ProfileFragment :
             )
         }
 
-        // =========================
+
+        // ========================================================
         // ABOUT
-        // =========================
+        // ========================================================
 
         btnAbout.setOnClickListener {
 
-            Toast.makeText(
-                requireContext(),
-                "Vinyl Hub\nMusic & Vinyl Collection App",
-                Toast.LENGTH_LONG
-            ).show()
+            showToast(
+                "Vinyl Hub\nMusic & Vinyl Collection App"
+            )
         }
 
-        // =========================
+
+        // ========================================================
         // LOGOUT
-        // =========================
+        // ========================================================
 
         btnLogout.setOnClickListener {
 
-            val context = requireContext()
+            val context =
+                requireContext()
+
 
             // Clear app login session
             Auth.logout(context)
+
 
             // Sign out from Google
             GoogleSignInManager
@@ -254,30 +298,37 @@ class ProfileFragment :
                             LoginActivity::class.java
                         )
 
+
                     intent.flags =
                         Intent.FLAG_ACTIVITY_NEW_TASK or
                                 Intent.FLAG_ACTIVITY_CLEAR_TASK
+
 
                     startActivity(intent)
                 }
         }
     }
 
-    // =========================
+
+    // ============================================================
     // LOAD USER PROFILE
-    // =========================
+    // ============================================================
 
     private fun loadProfile(
         txtProfileName: TextView,
         txtProfileEmail: TextView
     ) {
 
-        if (!isAdded) return
+        if (!isAdded) {
+            return
+        }
+
 
         val userId =
             Auth.getUserId(
                 requireContext()
             )
+
 
         if (userId == -1) {
 
@@ -290,176 +341,210 @@ class ProfileFragment :
             return
         }
 
+
         RetrofitInstance
-            .getApi(requireContext())
+            .getApi(
+                requireContext()
+            )
             .getUserById(userId)
-            .enqueue(object : Callback<UserDTO> {
+            .enqueue(
+                object : Callback<UserDTO> {
 
-                override fun onResponse(
-                    call: Call<UserDTO>,
-                    response: Response<UserDTO>
-                ) {
+                    override fun onResponse(
+                        call: Call<UserDTO>,
+                        response: Response<UserDTO>
+                    ) {
 
-                    if (!isAdded) return
+                        if (!isAdded) {
+                            return
+                        }
 
-                    if (response.isSuccessful) {
 
-                        val user =
-                            response.body()
+                        if (response.isSuccessful) {
 
-                        if (user != null) {
+                            val user =
+                                response.body()
 
-                            txtProfileName.text =
-                                user.name
 
-                            txtProfileEmail.text =
-                                user.email
+                            if (user != null) {
 
-                            if (user.imageId != null) {
+                                txtProfileName.text =
+                                    user.name
 
-                                loadProfileImage(
-                                    user.imageId
-                                )
+                                txtProfileEmail.text =
+                                    user.email
+
+
+                                if (user.imageId != null) {
+
+                                    loadProfileImage(
+                                        user.imageId
+                                    )
+
+                                } else {
+
+                                    imgProfile?.setImageResource(
+                                        R.drawable.ic_person
+                                    )
+                                }
 
                             } else {
 
-                                imgProfile?.setImageResource(
-                                    R.drawable.ic_person
+                                showToast(
+                                    "Unable to load your profile."
                                 )
                             }
+
+                        } else {
+
+                            showToast(
+                                "Unable to load your profile. Please try again."
+                            )
+                        }
+                    }
+
+
+                    override fun onFailure(
+                        call: Call<UserDTO>,
+                        t: Throwable
+                    ) {
+
+                        if (!isAdded) {
+                            return
                         }
 
-                    } else {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to load profile: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showToast(
+                            "Unable to load your profile. Please try again."
+                        )
                     }
                 }
-
-                override fun onFailure(
-                    call: Call<UserDTO>,
-                    t: Throwable
-                ) {
-
-                    if (!isAdded) return
-
-                    Toast.makeText(
-                        requireContext(),
-                        "Error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+            )
     }
 
-    // =========================
+
+    // ============================================================
     // LOAD PROFILE IMAGE
-    // =========================
+    // ============================================================
 
     private fun loadProfileImage(
         imageId: Int
     ) {
 
-        if (!isAdded) return
+        if (!isAdded) {
+            return
+        }
+
 
         RetrofitInstance
-            .getApi(requireContext())
+            .getApi(
+                requireContext()
+            )
             .getImage(imageId)
-            .enqueue(object : Callback<ResponseBody> {
+            .enqueue(
+                object : Callback<ResponseBody> {
 
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
+                    override fun onResponse(
+                        call: Call<ResponseBody>,
+                        response: Response<ResponseBody>
+                    ) {
 
-                    if (!isAdded) return
-
-                    if (!response.isSuccessful) {
-
-                        Toast.makeText(
-                            requireContext(),
-                            "Image error: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        return
-                    }
-
-                    val body =
-                        response.body()
-
-                    if (body == null) {
-
-                        Toast.makeText(
-                            requireContext(),
-                            "Image body is empty",
-                            Toast.LENGTH_SHORT
-                        ).show()
-
-                        return
-                    }
-
-                    try {
-
-                        val bytes =
-                            body.bytes()
-
-                        println(
-                            "ANDROID IMAGE SIZE: ${bytes.size}"
-                        )
-
-                        println(
-                            "ANDROID CONTENT TYPE: ${body.contentType()}"
-                        )
-
-                        val bitmap =
-                            BitmapFactory.decodeByteArray(
-                                bytes,
-                                0,
-                                bytes.size
-                            )
-
-                        if (bitmap != null) {
-
-                            imgProfile?.setImageBitmap(
-                                bitmap
-                            )
-
-                        } else {
-
-                            Toast.makeText(
-                                requireContext(),
-                                "Android could not decode image",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        if (!isAdded) {
+                            return
                         }
 
-                    } catch (e: Exception) {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Image decode error: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        if (!response.isSuccessful) {
+
+                            showToast(
+                                "Unable to load profile photo."
+                            )
+
+                            return
+                        }
+
+
+                        val body =
+                            response.body()
+
+
+                        if (body == null) {
+
+                            showToast(
+                                "Unable to load profile photo."
+                            )
+
+                            return
+                        }
+
+
+                        try {
+
+                            val bytes =
+                                body.bytes()
+
+
+                            val bitmap =
+                                BitmapFactory.decodeByteArray(
+                                    bytes,
+                                    0,
+                                    bytes.size
+                                )
+
+
+                            if (bitmap != null) {
+
+                                imgProfile?.setImageBitmap(
+                                    bitmap
+                                )
+
+                            } else {
+
+                                showToast(
+                                    "Unable to display profile photo."
+                                )
+                            }
+
+                        } catch (e: Exception) {
+
+                            showToast(
+                                "Unable to display profile photo."
+                            )
+                        }
+                    }
+
+
+                    override fun onFailure(
+                        call: Call<ResponseBody>,
+                        t: Throwable
+                    ) {
+
+                        if (!isAdded) {
+                            return
+                        }
+
+
+                        showToast(
+                            "Unable to load profile photo. Please try again."
+                        )
                     }
                 }
+            )
+    }
 
-                override fun onFailure(
-                    call: Call<ResponseBody>,
-                    t: Throwable
-                ) {
 
-                    if (!isAdded) return
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
 
-                    Toast.makeText(
-                        requireContext(),
-                        "Image request failed: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            requireContext(),
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

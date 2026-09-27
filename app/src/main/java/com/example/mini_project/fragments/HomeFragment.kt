@@ -45,11 +45,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private var allAlbums: List<AlbumDTO> = emptyList()
 
-    // Currently selected genre
     private var selectedGenre = "All"
 
     private val handler =
         Handler(Looper.getMainLooper())
+
 
     private val heroItems = listOf(
 
@@ -74,6 +74,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             buttonText = "Discover"
         )
     )
+
 
     private val heroRunnable =
         object : Runnable {
@@ -103,6 +104,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
 
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
@@ -112,6 +114,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             view,
             savedInstanceState
         )
+
 
         heroViewPager =
             view.findViewById(
@@ -143,12 +146,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 R.id.cartBadge
             )
 
+
         cartService =
             CartService(
                 RetrofitInstance.getApi(
                     requireContext()
                 )
             )
+
 
         setupHero()
         setupAlbums()
@@ -159,6 +164,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         loadAlbums()
         updateCartBadge()
     }
+
 
     // ==========================================
     // HERO VIEWPAGER
@@ -187,10 +193,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             }
 
+
         heroViewPager.adapter =
             heroAdapter
 
-        heroViewPager.offscreenPageLimit = 1
+        heroViewPager.offscreenPageLimit =
+            1
+
 
         handler.removeCallbacks(
             heroRunnable
@@ -201,6 +210,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             4000
         )
     }
+
 
     // ==========================================
     // ALBUMS
@@ -221,6 +231,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             false
         )
 
+
         albumAdapter =
             AlbumAdapter(
                 emptyList(),
@@ -234,9 +245,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             )
 
+
         albumRecyclerView.adapter =
             albumAdapter
     }
+
 
     private fun loadAlbums() {
 
@@ -244,6 +257,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             RetrofitInstance.getApi(
                 requireContext()
             )
+
 
         api.getAlbums().enqueue(
             object : Callback<List<AlbumDTO>> {
@@ -257,13 +271,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         return
                     }
 
+
                     if (response.isSuccessful) {
 
                         allAlbums =
                             response.body()
                                 ?: emptyList()
 
+
                         applyFilters()
+
 
                         albumRecyclerView.post {
                             albumRecyclerView.requestLayout()
@@ -271,13 +288,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
                     } else {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to load albums (${response.code()})",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        android.util.Log.e(
+                            "HomeAlbums",
+                            "Failed to load albums: ${response.code()}"
+                        )
+
+                        showToast(
+                            "Unable to load albums. Please try again."
+                        )
                     }
                 }
+
 
                 override fun onFailure(
                     call: Call<List<AlbumDTO>>,
@@ -288,15 +309,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         return
                     }
 
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to load albums: ${t.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+
+                    android.util.Log.e(
+                        "HomeAlbums",
+                        "Failed to load albums",
+                        t
+                    )
+
+
+                    showToast(
+                        "Unable to load albums. Please try again."
+                    )
                 }
             }
         )
     }
+
 
     // ==========================================
     // ALBUM DETAIL
@@ -309,6 +337,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val fragment =
             AlbumDetailFragment()
 
+
         fragment.arguments =
             Bundle().apply {
 
@@ -317,6 +346,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     album.id
                 )
             }
+
 
         parentFragmentManager
             .beginTransaction()
@@ -327,6 +357,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             .addToBackStack(null)
             .commit()
     }
+
 
     // ==========================================
     // SEARCH
@@ -345,6 +376,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 ) {
                 }
 
+
                 override fun onTextChanged(
                     s: CharSequence?,
                     start: Int,
@@ -355,6 +387,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     applyFilters()
                 }
 
+
                 override fun afterTextChanged(
                     s: Editable?
                 ) {
@@ -363,69 +396,125 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
     }
 
+
     // ==========================================
     // FILTERS
     // ==========================================
 
     private fun setupFilters() {
 
-        filterChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+        filterChipGroup.setOnCheckedStateChangeListener {
+                group,
+                checkedIds ->
 
-            selectedGenre = if (checkedIds.isEmpty()) {
-                "All"
-            } else {
-                group.findViewById<Chip>(checkedIds[0])
-                    ?.text
-                    ?.toString()
-                    ?.trim()
-                    ?: "All"
-            }
+            selectedGenre =
+                if (checkedIds.isEmpty()) {
+
+                    "All"
+
+                } else {
+
+                    group.findViewById<Chip>(
+                        checkedIds[0]
+                    )
+                        ?.text
+                        ?.toString()
+                        ?.trim()
+                        ?: "All"
+                }
+
 
             applyFilters()
         }
     }
 
+
     private fun applyFilters() {
 
-        var filteredAlbums = allAlbums
+        var filteredAlbums =
+            allAlbums
 
-        val keyword = searchInput.text
-            ?.toString()
-            ?.trim()
-            ?: ""
 
-        // Search
+        val keyword =
+            searchInput.text
+                ?.toString()
+                ?.trim()
+                ?: ""
+
+
+        // ======================================
+        // SEARCH
+        // ======================================
+
         if (keyword.isNotEmpty()) {
 
-            filteredAlbums = filteredAlbums.filter { album ->
+            filteredAlbums =
+                filteredAlbums.filter { album ->
 
-                album.title.contains(keyword, ignoreCase = true) ||
-                        album.artist.contains(keyword, ignoreCase = true) ||
-                        album.genre?.contains(keyword, ignoreCase = true) == true
-            }
-        }
-
-        // Genre filter
-        if (!selectedGenre.equals("All", ignoreCase = true)) {
-
-            filteredAlbums = filteredAlbums.filter { album ->
-
-                album.genre
-                    ?.trim()
-                    ?.replace("-", " ")
-                    ?.replace("_", " ")
-                    ?.equals(
-                        selectedGenre
-                            .trim()
-                            .replace("-", " ")
-                            .replace("_", " "),
+                    album.title.contains(
+                        keyword,
                         ignoreCase = true
-                    ) == true
-            }
+                    ) ||
+
+                            album.artist.contains(
+                                keyword,
+                                ignoreCase = true
+                            ) ||
+
+                            album.genre?.contains(
+                                keyword,
+                                ignoreCase = true
+                            ) == true
+                }
         }
 
-        albumAdapter.updateAlbums(filteredAlbums)
+
+        // ======================================
+        // GENRE FILTER
+        // ======================================
+
+        if (
+            !selectedGenre.equals(
+                "All",
+                ignoreCase = true
+            )
+        ) {
+
+            filteredAlbums =
+                filteredAlbums.filter { album ->
+
+                    album.genre
+                        ?.trim()
+                        ?.replace(
+                            "-",
+                            " "
+                        )
+                        ?.replace(
+                            "_",
+                            " "
+                        )
+                        ?.equals(
+                            selectedGenre
+                                .trim()
+                                .replace(
+                                    "-",
+                                    " "
+                                )
+                                .replace(
+                                    "_",
+                                    " "
+                                ),
+                            ignoreCase = true
+                        ) == true
+                }
+        }
+
+
+        albumAdapter.updateAlbums(
+            filteredAlbums
+        )
     }
+
 
     // ==========================================
     // CART BUTTON
@@ -444,6 +533,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+
     // ==========================================
     // ADD TO CART
     // ==========================================
@@ -455,21 +545,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val context =
             requireContext()
 
+
         val userId =
             Auth.getUserId(
                 context
             )
 
+
         if (userId == -1) {
 
-            Toast.makeText(
-                context,
-                "Please login first",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Please log in to add items to your cart."
+            )
 
             return
         }
+
 
         cartService
             .addToCart(
@@ -489,35 +580,33 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             return
                         }
 
+
                         if (response.isSuccessful) {
 
-                            Toast.makeText(
-                                context,
-                                "${album.title} added to cart",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "${album.title} added to your cart."
+                            )
+
 
                             updateCartBadge()
 
                         } else {
 
-                            val error =
-                                response
-                                    .errorBody()
-                                    ?.string()
-
                             android.util.Log.e(
                                 "HomeCart",
-                                "Add to cart failed: ${response.code()} - $error"
+                                "Add to cart failed: ${response.code()} - ${
+                                    response.errorBody()
+                                        ?.string()
+                                }"
                             )
 
-                            Toast.makeText(
-                                context,
-                                "Failed to add to cart: ${response.code()}",
-                                Toast.LENGTH_LONG
-                            ).show()
+
+                            showToast(
+                                "Unable to add this album to your cart."
+                            )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<CartDTO>,
@@ -528,21 +617,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             return
                         }
 
+
                         android.util.Log.e(
                             "HomeCart",
                             "Add to cart request failed",
                             t
                         )
 
-                        Toast.makeText(
-                            context,
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+
+                        showToast(
+                            "Unable to add the album to your cart. Please try again."
+                        )
                     }
                 }
             )
     }
+
 
     // ==========================================
     // CART BADGE
@@ -555,6 +645,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 requireContext()
             )
 
+
         if (userId == -1) {
 
             cartBadge.visibility =
@@ -562,6 +653,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             return
         }
+
 
         cartService
             .getCarts()
@@ -577,16 +669,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             return
                         }
 
+
                         if (response.isSuccessful) {
 
                             val carts =
                                 response.body()
                                     ?: emptyList()
 
+
                             val userCart =
                                 carts.firstOrNull {
                                     it.userId == userId
                                 }
+
 
                             val itemCount =
                                 userCart
@@ -595,6 +690,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                         it.quantity
                                     }
                                     ?: 0
+
 
                             if (itemCount > 0) {
 
@@ -612,6 +708,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                         }
                     }
 
+
                     override fun onFailure(
                         call: Call<List<CartDTO>>,
                         t: Throwable
@@ -627,6 +724,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             )
     }
 
+
     // ==========================================
     // RESUME
     // ==========================================
@@ -635,19 +733,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         super.onResume()
 
+
         handler.removeCallbacks(
             heroRunnable
         )
+
 
         handler.postDelayed(
             heroRunnable,
             4000
         )
 
+
         if (::cartBadge.isInitialized) {
+
             updateCartBadge()
         }
     }
+
 
     // ==========================================
     // PAUSE
@@ -657,10 +760,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         super.onPause()
 
+
         handler.removeCallbacks(
             heroRunnable
         )
     }
+
 
     // ==========================================
     // DESTROY VIEW
@@ -673,5 +778,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
 
         super.onDestroyView()
+    }
+
+
+    // ==========================================
+    // TOAST HELPER
+    // ==========================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            requireContext(),
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

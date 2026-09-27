@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mini_project.instance.RetrofitInstance
 import com.example.mini_project.backend.PaymentStatusDTO
+import com.example.mini_project.instance.RetrofitInstance
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,20 +18,40 @@ class PaymentResultActivity : AppCompatActivity() {
         val uri = intent?.data
 
         if (uri == null) {
-            paymentFailed("Invalid payment result")
+
+            paymentFailed(
+                "Unable to verify your payment."
+            )
+
             return
         }
+
 
         val sessionId =
-            uri.getQueryParameter("session_id")
+            uri.getQueryParameter(
+                "session_id"
+            )
+
 
         if (sessionId.isNullOrBlank()) {
-            paymentFailed("Payment session ID is missing")
+
+            paymentFailed(
+                "Unable to verify your payment."
+            )
+
             return
         }
 
-        checkPayment(sessionId)
+
+        checkPayment(
+            sessionId
+        )
     }
+
+
+    // ============================================================
+    // CHECK PAYMENT
+    // ============================================================
 
     private fun checkPayment(
         sessionId: String
@@ -53,12 +73,16 @@ class PaymentResultActivity : AppCompatActivity() {
                             val result =
                                 response.body()
 
+
                             if (result == null) {
+
                                 paymentFailed(
-                                    "Empty payment response"
+                                    "Unable to verify your payment."
                                 )
+
                                 return
                             }
+
 
                             if (
                                 result.paymentStatus
@@ -68,45 +92,23 @@ class PaymentResultActivity : AppCompatActivity() {
                                     )
                             ) {
 
-                                Toast.makeText(
-                                    this@PaymentResultActivity,
-                                    "Payment successful",
-                                    Toast.LENGTH_LONG
-                                ).show()
-
-                                val intent =
-                                    Intent(
-                                        this@PaymentResultActivity,
-                                        MainActivity::class.java
-                                    )
-
-                                intent.flags =
-                                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                                            Intent.FLAG_ACTIVITY_CLEAR_TOP
-
-                                intent.putExtra(
-                                    "paymentSuccess",
-                                    true
-                                )
-
-                                startActivity(intent)
-
-                                finish()
+                                paymentSuccessful()
 
                             } else {
 
                                 paymentFailed(
-                                    "Payment was not completed"
+                                    "Payment was not completed."
                                 )
                             }
 
                         } else {
 
                             paymentFailed(
-                                "Payment verification failed: ${response.code()}"
+                                "Unable to verify your payment."
                             )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<PaymentStatusDTO>,
@@ -114,12 +116,54 @@ class PaymentResultActivity : AppCompatActivity() {
                     ) {
 
                         paymentFailed(
-                            "Payment verification error: ${t.message}"
+                            "Unable to verify your payment. Please try again."
                         )
                     }
                 }
             )
     }
+
+
+    // ============================================================
+    // PAYMENT SUCCESS
+    // ============================================================
+
+    private fun paymentSuccessful() {
+
+        Toast.makeText(
+            this,
+            "Payment successful.",
+            Toast.LENGTH_LONG
+        ).show()
+
+
+        val intent =
+            Intent(
+                this,
+                MainActivity::class.java
+            )
+
+
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+
+
+        intent.putExtra(
+            "paymentSuccess",
+            true
+        )
+
+
+        startActivity(intent)
+
+        finish()
+    }
+
+
+    // ============================================================
+    // PAYMENT FAILED
+    // ============================================================
 
     private fun paymentFailed(
         message: String
@@ -131,14 +175,17 @@ class PaymentResultActivity : AppCompatActivity() {
             Toast.LENGTH_LONG
         ).show()
 
+
         val intent =
             Intent(
                 this,
                 CartActivity::class.java
             )
 
+
         intent.flags =
             Intent.FLAG_ACTIVITY_CLEAR_TOP
+
 
         startActivity(intent)
 

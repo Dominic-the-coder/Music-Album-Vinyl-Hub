@@ -32,19 +32,23 @@ class OrderDetailFragment :
     private val orderItems =
         mutableListOf<com.example.mini_project.backend.OrderItemDTO>()
 
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
+
         super.onViewCreated(
             view,
             savedInstanceState
         )
 
+
         val btnBack =
             view.findViewById<ImageView>(
                 R.id.btnBack
             )
+
 
         txtOrderNumber =
             view.findViewById(
@@ -66,15 +70,18 @@ class OrderDetailFragment :
                 R.id.txtOrderTotal
             )
 
+
         recyclerView =
             view.findViewById(
                 R.id.orderDetailsRecyclerView
             )
 
+
         adapter =
             OrderDetailsAdapter(
                 orderItems
             )
+
 
         recyclerView.layoutManager =
             LinearLayoutManager(
@@ -84,7 +91,11 @@ class OrderDetailFragment :
         recyclerView.adapter =
             adapter
 
-        // Back → Order History
+
+        // ========================================================
+        // BACK BUTTON
+        // ========================================================
+
         btnBack.setOnClickListener {
 
             requireActivity()
@@ -92,25 +103,31 @@ class OrderDetailFragment :
                 .popBackStack()
         }
 
+
         val orderId =
             arguments?.getInt(
                 "orderId",
                 -1
             ) ?: -1
 
+
         if (orderId == -1) {
 
-            Toast.makeText(
-                requireContext(),
-                "Invalid order",
-                Toast.LENGTH_SHORT
-            ).show()
+            showToast(
+                "Order could not be found."
+            )
 
             return
         }
 
+
         loadOrder(orderId)
     }
+
+
+    // ============================================================
+    // LOAD ORDER
+    // ============================================================
 
     private fun loadOrder(
         orderId: Int
@@ -121,6 +138,7 @@ class OrderDetailFragment :
                 requireContext()
             )
 
+
         api.getOrderById(orderId)
             .enqueue(
                 object : Callback<OrderDTO> {
@@ -130,42 +148,61 @@ class OrderDetailFragment :
                         response: Response<OrderDTO>
                     ) {
 
+                        if (!isAdded) {
+                            return
+                        }
+
+
                         if (response.isSuccessful) {
 
                             val order =
                                 response.body()
+
 
                             if (order != null) {
 
                                 displayOrder(
                                     order
                                 )
+
+                            } else {
+
+                                showToast(
+                                    "Unable to load order details."
+                                )
                             }
 
                         } else {
 
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to load order",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            showToast(
+                                "Unable to load order details."
+                            )
                         }
                     }
+
 
                     override fun onFailure(
                         call: Call<OrderDTO>,
                         t: Throwable
                     ) {
 
-                        Toast.makeText(
-                            requireContext(),
-                            "Network error: ${t.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        if (!isAdded) {
+                            return
+                        }
+
+
+                        showToast(
+                            "Unable to load order. Please try again."
+                        )
                     }
                 }
             )
     }
+
+
+    // ============================================================
+    // DISPLAY ORDER
+    // ============================================================
 
     private fun displayOrder(
         order: OrderDTO
@@ -174,13 +211,16 @@ class OrderDetailFragment :
         txtOrderNumber.text =
             "Order #${order.id}"
 
+
         txtOrderStatus.text =
             order.status
+
 
         txtOrderDate.text =
             formatDate(
                 order.createdAt
             )
+
 
         txtOrderTotal.text =
             String.format(
@@ -189,10 +229,16 @@ class OrderDetailFragment :
                 order.totalAmount
             )
 
+
         adapter.updateList(
             order.items
         )
     }
+
+
+    // ============================================================
+    // FORMAT DATE
+    // ============================================================
 
     private fun formatDate(
         dateString: String
@@ -206,16 +252,19 @@ class OrderDetailFragment :
                     Locale.getDefault()
                 )
 
+
             val outputFormat =
                 SimpleDateFormat(
                     "d MMMM yyyy",
                     Locale.getDefault()
                 )
 
+
             val date =
                 inputFormat.parse(
                     dateString
                 )
+
 
             if (date != null) {
 
@@ -232,5 +281,21 @@ class OrderDetailFragment :
 
             dateString
         }
+    }
+
+
+    // ============================================================
+    // TOAST HELPER
+    // ============================================================
+
+    private fun showToast(
+        message: String
+    ) {
+
+        Toast.makeText(
+            requireContext(),
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

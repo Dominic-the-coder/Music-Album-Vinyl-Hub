@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="teal">#05B1FD</color>
@@ -10,4 +11,21 @@
     <color name="green">#FF00FF00</color>
     <color name="hint_gray">#ABA6AD</color>
     <color name="dark_gray">#808080</color>
+
+    <!-- Light mode -->
+    <color name="primary">#B96648</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F2F2F2</color>
+    <color name="on_surface">#111111</color>
+    <color name="on_surface_variant">#666666</color>
+    <color name="chip_text">#000000</color>
+
+    <color name="splash_background">#F5F5F5</color>
+    <color name="splash_title">#FF9800</color>
+    <color name="splash_text">#212121</color>
+    <color name="splash_secondary_text">#666666</color>
+    <color name="splash_vinyl">#000000</color>
+
 </resources>

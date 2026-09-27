@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">mini_project</string>
+
+    <string name="default_web_client_id">
+        320520268781-114evkfea811ekljpr34jv0l7ta0t4ai.apps.googleusercontent.com
+    </string>
+
 </resources>

@@ -1,32 +1,67 @@
 package com.example.mini_project
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.appcompat.widget.AppCompatButton
+import androidx.fragment.app.Fragment
+import com.example.mini_project.fragments.HomeFragment
+import com.example.mini_project.fragments.OrderHistoryFragment
+import com.example.mini_project.fragments.ProfileFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
+    // Remembers where Order History was opened from
+    var ordersOpenedFromProfile = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        val bottomNav =
+            findViewById<BottomNavigationView>(
+                R.id.bottomNav
+            )
+
+        // Open Home when MainActivity starts
+        if (savedInstanceState == null) {
+            loadFragment(HomeFragment())
+            bottomNav.selectedItemId = R.id.nav_home
         }
 
-        val btnStart = findViewById<AppCompatButton>(R.id.btnStart)
+        bottomNav.setOnItemSelectedListener { item ->
 
-        btnStart.setOnClickListener {
-            val intent = Intent(this, AlbumListActivity::class.java)
-            startActivity(intent)
-            finish()
+            when (item.itemId) {
+
+                R.id.nav_home -> {
+                    ordersOpenedFromProfile = false
+                    loadFragment(HomeFragment())
+                    true
+                }
+
+                R.id.nav_order -> {
+                    loadFragment(OrderHistoryFragment())
+                    true
+                }
+
+                R.id.nav_profile -> {
+                    ordersOpenedFromProfile = false
+                    loadFragment(ProfileFragment())
+                    true
+                }
+
+                else -> false
+            }
         }
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                fragment
+            )
+            .commit()
     }
 }

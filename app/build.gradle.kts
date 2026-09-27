@@ -70,6 +70,25 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+    // 1st step: add library
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+
+    // Moshi Converter for parsing JSON to Kotlin objects
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+
+    implementation("com.google.android.material:material:1.13.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    implementation("io.coil-kt:coil:2.7.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
+
 }
 
 // KSP configuration for Room schema export

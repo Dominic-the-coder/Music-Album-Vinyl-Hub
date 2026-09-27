@@ -1,63 +1,108 @@
 package com.example.mini_project.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mini_project.R
-import com.example.mini_project.cart.CartManager
-import com.example.mini_project.model.Album
+import com.example.mini_project.backend.AlbumDTO
+import com.google.android.material.button.MaterialButton
 
 class AlbumAdapter(
-    private var albumList: List<Album>
+    private var albums: List<AlbumDTO>,
+    private val onAddToCartClick: (AlbumDTO) -> Unit,
+    private val onAlbumClick: (AlbumDTO) -> Unit
 ) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
-    // ViewHolder stores references to UI components for better RecyclerView performance
     class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val image: ImageView = itemView.findViewById(R.id.imageAlbum)
-        val title: TextView = itemView.findViewById(R.id.tvAlbumTitle)
-        val artist: TextView = itemView.findViewById(R.id.tvArtist)
-        val price: TextView = itemView.findViewById(R.id.tvPrice)
-        val btnAdd: AppCompatButton = itemView.findViewById(R.id.btnAdd)
+
+        val albumImage: ImageView =
+            itemView.findViewById(R.id.imgAlbum)
+
+        val albumTitle: TextView =
+            itemView.findViewById(R.id.txtAlbumTitle)
+
+        val albumArtist: TextView =
+            itemView.findViewById(R.id.txtArtist)
+
+        val albumPrice: TextView =
+            itemView.findViewById(R.id.txtPrice)
+
+        val addToCartButton: MaterialButton =
+            itemView.findViewById(R.id.btnAddToCart)
     }
 
-    // Inflates item_album.xml and creates a ViewHolder for each RecyclerView item
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): AlbumViewHolder {
+
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_album, parent, false)
+
         return AlbumViewHolder(view)
     }
 
-    // Binds album data to the corresponding UI components in the ViewHolder
-    override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val album = albumList[position]
+    override fun onBindViewHolder(
+        holder: AlbumViewHolder,
+        position: Int
+    ) {
 
-        holder.image.setImageResource(album.imageRes)
-        holder.title.text = album.title
-        holder.artist.text = album.artist
-        holder.price.text = String.format("RM %.2f", album.price)
+        val album = albums[position]
 
-        holder.btnAdd.setOnClickListener {
-            CartManager.addToCart(album)
+        holder.albumTitle.text = album.title
+        holder.albumArtist.text = album.artist
+        holder.albumPrice.text =
+            String.format("RM %.2f", album.price)
 
-            Toast.makeText(
-                holder.itemView.context,
-                "Added to cart",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (!album.imageUrl.isNullOrEmpty()) {
+
+            Glide.with(holder.itemView.context)
+                .load(album.imageUrl)
+                .placeholder(R.drawable.vinyl_banner)
+                .error(R.drawable.vinyl_banner)
+                .into(holder.albumImage)
+
+        } else {
+
+            holder.albumImage.setImageResource(
+                R.drawable.vinyl_banner
+            )
+        }
+
+        holder.itemView.setOnClickListener {
+
+            Log.d(
+                "AlbumAdapter",
+                "Album clicked: ${album.title}"
+            )
+
+            onAlbumClick(album)
+        }
+
+        holder.addToCartButton.setOnClickListener {
+
+            Log.d(
+                "AlbumAdapter",
+                "ADD TO CART CLICKED: ${album.title}, ID=${album.id}"
+            )
+
+            onAddToCartClick(album)
         }
     }
 
-    // Returns the total number of albums for RecyclerView to display
-    override fun getItemCount(): Int = albumList.size
+    override fun getItemCount(): Int {
+        return albums.size
+    }
 
-    // Updates the album list and refreshes the RecyclerView display
-    fun updateList(newList: List<Album>) {
-        albumList = newList
+    fun updateAlbums(newAlbums: List<AlbumDTO>) {
+
+        albums = newAlbums
+
         notifyDataSetChanged()
     }
 }

@@ -1,52 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".MainActivity"
-    android:background="@color/black">
+    android:background="#FAF7F4"
+    tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:src="@drawable/app_logo"
-        android:scaleType="fitCenter"/>
+    <!-- Main page -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom navigation container -->
+    <FrameLayout
+        android:id="@+id/bottomNavContainer"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="Music Album Vinyl Hub"
-        android:textColor="@color/white"
-        android:textSize="30sp"
-        android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Browse and collect your favorite vinyl albums."
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:alpha="0.8"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:background="@drawable/rounded_button"
-        android:backgroundTint="@color/dark_gray"
-        android:layout_marginTop="16dp" />
+        <!-- Bottom navigation -->
+        <include
+            layout="@layout/layout_bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-</LinearLayout>
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

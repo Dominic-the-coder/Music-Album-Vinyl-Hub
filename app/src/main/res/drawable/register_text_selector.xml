@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Mouse hover -->
+    <item
+        android:state_hovered="true"
+        android:color="#8F4935" />
+
+    <!-- Pressed / clicked -->
+    <item
+        android:state_pressed="true"
+        android:color="#713728" />
+
+    <!-- Default -->
+    <item
+        android:color="#B86648" />
+
+</selector>

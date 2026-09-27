@@ -1,31 +1,39 @@
 package com.example.mini_project.services
 
 import com.example.mini_project.adapters.AlbumAdapter
-import com.example.mini_project.model.Album
+import com.example.mini_project.backend.AlbumDTO
 
-open class AlbumService (
+open class AlbumService(
 
-    // Stores all album data
-    private var albumList: List<Album>,
+    private var albumList: List<AlbumDTO>,
 
-    // RecyclerView adapter reference
     private var currAdapter: AlbumAdapter
-){
 
-    // Currently displayed albums
-    var currentSelectedAlbums: MutableList<Album> = albumList.toMutableList()
+) {
 
-    // Adapter used to refresh RecyclerView
-    var adapter: AlbumAdapter = currAdapter
+    var currentSelectedAlbums: MutableList<AlbumDTO> =
+        albumList.toMutableList()
 
-    // Updates displayed albums and refreshes RecyclerView
-    fun updateList(filtered: List<Album>){
-        currentSelectedAlbums = filtered.toMutableList()
-        adapter.updateList(currentSelectedAlbums)
+    var adapter: AlbumAdapter =
+        currAdapter
+
+
+    fun updateList(
+        filtered: List<AlbumDTO>
+    ) {
+
+        currentSelectedAlbums =
+            filtered.toMutableList()
+
+        adapter.updateAlbums(
+            currentSelectedAlbums
+        )
     }
 
-    // Returns the current displayed album list
-    fun retrieveCurrentSelectedAlbums(): MutableList<Album>{
+
+    fun retrieveCurrentSelectedAlbums():
+            MutableList<AlbumDTO> {
+
         return currentSelectedAlbums
     }
 }

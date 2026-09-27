@@ -1,10 +1,13 @@
-package com.example.mini_project.model
+package com.example.mini_project.models
 
 data class Album(
-    val id: Int =0,
+    val id: Int,
+    val jamendoId: String,
     val title: String,
     val artist: String,
+    val imageUrl: String?,
+    val releaseDate: String?,
     val price: Double,
-    val imageRes: Int,
-    var quantity: Int = 0
+    val quantity: Int,
+    val songs: List<Song>
 )
